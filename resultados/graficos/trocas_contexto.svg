@@ -33,7 +33,7 @@
 <line x1="267.2" y1="70.0" x2="277.2" y2="70.0" stroke="#9333ea"/>
 <line x1="267.2" y1="72.3" x2="277.2" y2="72.3" stroke="#9333ea"/>
 <text x="463.8" y="498" text-anchor="middle" font-family="Arial" font-size="12">equilibrado</text>
-<circle cx="412.8" cy="341.2" r="5" fill="#2563eb"/>
+<circle cx="412.8" cy="341.3" r="5" fill="#2563eb"/>
 <line x1="412.8" y1="340.8" x2="412.8" y2="341.7" stroke="#2563eb" stroke-width="2"/>
 <line x1="407.8" y1="340.8" x2="417.8" y2="340.8" stroke="#2563eb"/>
 <line x1="407.8" y1="341.7" x2="417.8" y2="341.7" stroke="#2563eb"/>
@@ -50,10 +50,10 @@
 <line x1="509.8" y1="82.4" x2="519.8" y2="82.4" stroke="#9333ea"/>
 <line x1="509.8" y1="85.4" x2="519.8" y2="85.4" stroke="#9333ea"/>
 <text x="706.2" y="498" text-anchor="middle" font-family="Arial" font-size="12">io_bound</text>
-<circle cx="655.2" cy="230.8" r="5" fill="#2563eb"/>
-<line x1="655.2" y1="230.3" x2="655.2" y2="231.2" stroke="#2563eb" stroke-width="2"/>
-<line x1="650.2" y1="230.3" x2="660.2" y2="230.3" stroke="#2563eb"/>
-<line x1="650.2" y1="231.2" x2="660.2" y2="231.2" stroke="#2563eb"/>
+<circle cx="655.2" cy="231.0" r="5" fill="#2563eb"/>
+<line x1="655.2" y1="230.5" x2="655.2" y2="231.4" stroke="#2563eb" stroke-width="2"/>
+<line x1="650.2" y1="230.5" x2="660.2" y2="230.5" stroke="#2563eb"/>
+<line x1="650.2" y1="231.4" x2="660.2" y2="231.4" stroke="#2563eb"/>
 <circle cx="689.2" cy="230.8" r="5" fill="#dc2626"/>
 <line x1="689.2" y1="230.3" x2="689.2" y2="231.2" stroke="#dc2626" stroke-width="2"/>
 <line x1="684.2" y1="230.3" x2="694.2" y2="230.3" stroke="#dc2626"/>
@@ -67,7 +67,7 @@
 <line x1="752.2" y1="230.3" x2="762.2" y2="230.3" stroke="#9333ea"/>
 <line x1="752.2" y1="231.2" x2="762.2" y2="231.2" stroke="#9333ea"/>
 <text x="948.8" y="498" text-anchor="middle" font-family="Arial" font-size="12">prioridades_desbalanceadas</text>
-<circle cx="897.8" cy="341.2" r="5" fill="#2563eb"/>
+<circle cx="897.8" cy="341.3" r="5" fill="#2563eb"/>
 <line x1="897.8" y1="340.8" x2="897.8" y2="341.7" stroke="#2563eb" stroke-width="2"/>
 <line x1="892.8" y1="340.8" x2="902.8" y2="340.8" stroke="#2563eb"/>
 <line x1="892.8" y1="341.7" x2="902.8" y2="341.7" stroke="#2563eb"/>

@@ -1,17 +1,17 @@
 cenario,metrica,titulo,sentido_favoravel,melhor_geral,ranking,media_epa,ic95_epa_inferior,ic95_epa_superior,melhor_classico,media_melhor_classico,vantagem_epa_pct,ic95_sobrepoe_melhor_classico
-equilibrado,turnaround_medio,Turnaround médio,menor,prioridade,prioridade > fcfs > epa > round_robin,22731.50218,22581.52643955244,22881.47792044756,prioridade,18600.48152,-22.209213538682615,não
-equilibrado,trocas_contexto,Trocas de contexto,menor,epa / fcfs / prioridade,epa = fcfs = prioridade > round_robin,3495.68,3483.9801456435894,3507.3798543564103,fcfs / prioridade,3495.68,0.0,sim
-equilibrado,slowdown_medio,Slowdown médio,menor,epa,epa > fcfs > round_robin > prioridade,531.0852527790275,527.3055869421283,534.8649186159267,fcfs,531.1362276398794,0.00959732328528229,sim
-equilibrado,jain_slowdown_pct,Jain do slowdown,maior,round_robin,round_robin > epa > fcfs > prioridade,41.009715343987594,39.6754990564833,42.34393163149189,round_robin,79.64407775810584,-48.50876989430165,não
-io_bound,turnaround_medio,Turnaround médio,menor,prioridade,prioridade > epa > fcfs = round_robin,16146.01126,16095.54075741398,16196.481762586018,prioridade,11104.7728,-45.397042792266745,não
-io_bound,trocas_contexto,Trocas de contexto,menor,epa / fcfs / prioridade / round_robin,epa = fcfs = prioridade = round_robin,6495.16,6483.464529717809,6506.855470282191,fcfs / prioridade / round_robin,6495.16,0.0,sim
-io_bound,slowdown_medio,Slowdown médio,menor,prioridade,prioridade > epa > fcfs = round_robin,310.72286332996805,310.0849928867237,311.3607337732124,prioridade,225.35836969266728,-37.879442309472104,não
-io_bound,jain_slowdown_pct,Jain do slowdown,maior,fcfs / round_robin,fcfs = round_robin > epa > prioridade,92.78948736724857,92.70835536455517,92.87061936994196,fcfs / round_robin,92.80812060179036,-0.020077159650440938,sim
-cpu_bound,turnaround_medio,Turnaround médio,menor,prioridade,prioridade > fcfs > epa > round_robin,20002.7711,19903.045385905898,20102.496814094106,prioridade,17935.291100000002,-11.52744044394127,não
+equilibrado,turnaround_medio,Turnaround médio,menor,prioridade,prioridade > epa > fcfs > round_robin,21886.17119,21748.6489816907,22023.6933983093,prioridade,18600.48152,-17.66454092313197,não
+equilibrado,trocas_contexto,Trocas de contexto,menor,epa,epa > fcfs = prioridade > round_robin,3495.28,3483.573971715066,3506.9860282849345,fcfs / prioridade,3495.68,0.011442694983512114,sim
+equilibrado,slowdown_medio,Slowdown médio,menor,epa,epa > fcfs > round_robin > prioridade,527.5626094053259,522.7384124033931,532.3868064072587,fcfs,531.1362276398794,0.6728251715069314,sim
+equilibrado,jain_slowdown_pct,Jain do slowdown,maior,round_robin,round_robin > fcfs > epa > prioridade,34.274214001566136,32.841221920623525,35.70720608250875,round_robin,79.64407775810584,-56.96577201174527,não
+io_bound,turnaround_medio,Turnaround médio,menor,epa,epa > prioridade > fcfs = round_robin,9905.50263,9876.749031139741,9934.25622886026,prioridade,11104.7728,10.799592135734644,não
+io_bound,trocas_contexto,Trocas de contexto,menor,epa,epa > fcfs = prioridade = round_robin,6489.28,6477.498766697545,6501.061233302455,fcfs / prioridade / round_robin,6495.16,0.09052894770875712,sim
+io_bound,slowdown_medio,Slowdown médio,menor,epa,epa > prioridade > fcfs = round_robin,204.80617650143958,204.15133986822292,205.46101313465624,prioridade,225.35836969266728,9.119782513183681,não
+io_bound,jain_slowdown_pct,Jain do slowdown,maior,fcfs / round_robin,fcfs = round_robin > prioridade > epa,62.63706736837269,62.44119409546371,62.832940641281674,fcfs / round_robin,92.80812060179036,-32.509066057777325,não
+cpu_bound,turnaround_medio,Turnaround médio,menor,prioridade,prioridade > fcfs > epa > round_robin,20850.852460000002,20745.30083319487,20956.404086805134,prioridade,17935.291100000002,-16.256002446483844,não
 cpu_bound,trocas_contexto,Trocas de contexto,menor,epa / fcfs / prioridade,epa = fcfs = prioridade > round_robin,1497.89,1494.64300503707,1501.1369949629302,fcfs / prioridade,1497.89,0.0,sim
-cpu_bound,slowdown_medio,Slowdown médio,menor,epa,epa > fcfs > prioridade > round_robin,487.7093022210836,486.02869254823247,489.3899118939347,fcfs,487.72092242140985,0.002382551125461575,sim
-cpu_bound,jain_slowdown_pct,Jain do slowdown,maior,round_robin,round_robin > epa > fcfs > prioridade,77.73685465481857,77.59608982559615,77.87761948404099,round_robin,94.28718044083733,-17.553102880622934,não
-prioridades_desbalanceadas,turnaround_medio,Turnaround médio,menor,prioridade,prioridade > fcfs > epa > round_robin,22759.302089999997,22606.338318093935,22912.26586190606,prioridade,19283.27863,-18.026101923311764,não
-prioridades_desbalanceadas,trocas_contexto,Trocas de contexto,menor,epa / fcfs,epa = fcfs > prioridade > round_robin,3495.65,3483.953778078699,3507.346221921301,fcfs,3495.65,0.0,sim
-prioridades_desbalanceadas,slowdown_medio,Slowdown médio,menor,epa,epa > fcfs > round_robin > prioridade,526.0668667028543,522.4034037089222,529.7303296967865,fcfs,526.1126021992712,0.008693100341205481,sim
-prioridades_desbalanceadas,jain_slowdown_pct,Jain do slowdown,maior,round_robin,round_robin > epa > fcfs > prioridade,42.854873977493206,41.68538043857527,44.02436751641114,round_robin,80.54619750692065,-46.794665292782994,não
+cpu_bound,slowdown_medio,Slowdown médio,menor,epa,epa > fcfs > prioridade > round_robin,479.95386138118704,478.4831336046825,481.42458915769157,fcfs,487.72092242140985,1.5925216006033407,não
+cpu_bound,jain_slowdown_pct,Jain do slowdown,maior,round_robin,round_robin > epa > fcfs > prioridade,81.31453019967603,81.14319308029692,81.48586731905513,round_robin,94.28718044083733,-13.758657518984029,não
+prioridades_desbalanceadas,turnaround_medio,Turnaround médio,menor,prioridade,prioridade > epa > fcfs > round_robin,21946.29115,21804.13981099065,22088.44248900935,prioridade,19283.27863,-13.809957171168046,não
+prioridades_desbalanceadas,trocas_contexto,Trocas de contexto,menor,epa,epa > fcfs > prioridade > round_robin,3495.23,3483.5190410456744,3506.9409589543257,fcfs,3495.65,0.012014932845109572,sim
+prioridades_desbalanceadas,slowdown_medio,Slowdown médio,menor,epa,epa > fcfs > round_robin > prioridade,519.4526989557569,515.5521468830951,523.3532510284186,fcfs,526.1126021992712,1.2658703128711284,sim
+prioridades_desbalanceadas,jain_slowdown_pct,Jain do slowdown,maior,round_robin,round_robin > fcfs > epa > prioridade,36.11439125349627,34.90909376995011,37.31968873704243,round_robin,80.54619750692065,-55.1631332436354,não
