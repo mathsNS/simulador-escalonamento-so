@@ -14,8 +14,8 @@ simulator: src/main.c $(COMMON) include/simulator.h include/scheduler_internal.h
 test_schedulers: tests/test_schedulers.c $(COMMON) include/simulator.h include/scheduler_internal.h
 	$(CC) $(CPPFLAGS) $(CFLAGS) -o $@ tests/test_schedulers.c $(COMMON)
 
-test_workload: tests/test_workload.c src/workload.c include/workload.h
-	$(CC) $(CPPFLAGS) $(CFLAGS) -o $@ tests/test_workload.c src/workload.c $(LDLIBS)
+test_workload: tests/test_workload.c src/workload.c $(COMMON) include/workload.h include/simulator.h include/scheduler_internal.h
+	$(CC) $(CPPFLAGS) $(CFLAGS) -o $@ tests/test_workload.c src/workload.c $(COMMON) $(LDLIBS)
 
 test: test_schedulers test_workload
 	./test_schedulers
