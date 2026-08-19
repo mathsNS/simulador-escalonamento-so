@@ -2,10 +2,11 @@ CC ?= cc
 CFLAGS ?= -std=c11 -Wall -Wextra -Wpedantic -O2
 CPPFLAGS ?= -Iinclude -Isrc
 LDLIBS ?= -lm
+PYTHON ?= python
 
 COMMON = src/simulator.c src/scheduler_fcfs.c src/scheduler_round_robin.c src/scheduler_priority.c src/scheduler_epa.c
 
-.PHONY: all test clean experiment
+.PHONY: all test test_analysis clean experiment
 all: simulator
 
 simulator: src/main.c $(COMMON) include/simulator.h include/scheduler_internal.h
@@ -26,7 +27,10 @@ test_workload: tests/test_workload.c src/workload.c $(COMMON) include/workload.h
 test_scenarios: tests/test_scenarios.c src/scenarios.c src/workload.c include/scenarios.h include/workload.h include/simulator.h
 	$(CC) $(CPPFLAGS) $(CFLAGS) -o $@ tests/test_scenarios.c src/scenarios.c src/workload.c $(LDLIBS)
 
-test: test_schedulers test_workload test_scenarios
+test_analysis:
+	$(PYTHON) -m unittest discover -s analysis/tests -v
+
+test: test_schedulers test_workload test_scenarios test_analysis
 	./test_schedulers
 	./test_workload
 	./test_scenarios

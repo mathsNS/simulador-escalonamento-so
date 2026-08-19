@@ -6,6 +6,15 @@
 #include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+
+#ifdef _WIN32
+#include <direct.h>
+#define MAKE_DIRECTORY(path) _mkdir(path)
+#else
+#include <sys/stat.h>
+#define MAKE_DIRECTORY(path) mkdir(path, 0777)
+#endif
 
 /*
  * Executor dos experimentos oficiais.
@@ -62,6 +71,30 @@ static int parse_positive_int(const char *text, const char *name) {
     return (int)value;
 }
 
+/* Cria os diretórios ancestrais de um arquivo, quando necessários. */
+static int ensure_parent_directories(const char *file_path) {
+    char *path = malloc(strlen(file_path) + 1);
+    size_t i;
+
+    if (!path)
+        return -1;
+    strcpy(path, file_path);
+    for (i = 1; path[i] != '\0'; ++i) {
+        if (path[i] != '/' && path[i] != '\\')
+            continue;
+        if (i == 2 && path[1] == ':')
+            continue;
+        path[i] = '\0';
+        if (path[0] != '\0' && MAKE_DIRECTORY(path) != 0 && errno != EEXIST) {
+            free(path);
+            return -1;
+        }
+        path[i] = '/';
+    }
+    free(path);
+    return 0;
+}
+
 /*
  * Grava uma linha por processo. O analisador calculará turnaround e slowdown
  * usando somente estes dados brutos, sem duplicar a lógica do simulador.
@@ -103,6 +136,12 @@ int main(int argc, char **argv) {
         return EXIT_FAILURE;
     }
 
+    if (ensure_parent_directories(process_path) != 0 ||
+        ensure_parent_directories(run_path) != 0) {
+        perror("Falha ao criar diretório de saída");
+        goto cleanup;
+    }
+
     process_file = fopen(process_path, "w");
     if (!process_file) {
         perror(process_path);
@@ -116,7 +155,9 @@ int main(int argc, char **argv) {
 
     fprintf(process_file,
             "seed,cenario,algoritmo,pid,chegada,termino,cpu_total,io_total\n");
-    fprintf(run_file, "seed,cenario,algoritmo,trocas_contexto\n");
+    fprintf(run_file,
+            "seed,cenario,algoritmo,num_processos,total_seeds,quantum,"
+            "custo_troca,trocas_contexto\n");
 
     for (scenario_index = 0;
          scenario_index < sizeof(SCENARIOS) / sizeof(SCENARIOS[0]);
@@ -159,8 +200,9 @@ int main(int argc, char **argv) {
 
                 if (write_process_rows(process_file, seed, scenario_name,
                                        algorithm->csv_name, &result) != 0 ||
-                    fprintf(run_file, "%llu,%s,%s,%d\n",
+                    fprintf(run_file, "%llu,%s,%s,%d,%d,%d,%d,%d\n",
                             seed, scenario_name, algorithm->csv_name,
+                            process_count, seed_count, quantum, context_cost,
                             result.context_switches) < 0) {
                     fprintf(stderr, "Falha ao gravar os arquivos CSV.\n");
                     simulator_result_destroy(&result);

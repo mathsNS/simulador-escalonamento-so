@@ -27,6 +27,15 @@ class ComparisonTests(unittest.TestCase):
         # EPA=90 contra clássico=80 representa vantagem de 12,5%.
         self.assertAlmostEqual(comparar.relative_advantage(90, 80, "max"), 12.5)
 
+    def test_tied_algorithms_are_reported_together(self):
+        rows = [
+            {"algoritmo": "fcfs", "media": 10.0},
+            {"algoritmo": "epa", "media": 10.0},
+            {"algoritmo": "rr", "media": 12.0},
+        ]
+        self.assertEqual(comparar.best_names(rows, "min"), "fcfs / epa")
+        self.assertEqual(comparar.ranking_text(rows, "min"), "fcfs = epa > rr")
+
 
 if __name__ == "__main__":
     unittest.main()

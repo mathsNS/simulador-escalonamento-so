@@ -23,7 +23,10 @@ PROCESS_COLUMNS = {
     "seed", "cenario", "algoritmo", "pid", "chegada", "termino", "cpu_total", "io_total"
 }
 # Colunas obrigatórias do arquivo que possui uma linha por execução.
-RUN_COLUMNS = {"seed", "cenario", "algoritmo", "trocas_contexto"}
+RUN_COLUMNS = {
+    "seed", "cenario", "algoritmo", "num_processos", "total_seeds",
+    "quantum", "custo_troca", "trocas_contexto",
+}
 
 # Campos que identificam unicamente uma execução experimental.
 KEY = ("seed", "cenario", "algoritmo")
@@ -106,19 +109,27 @@ def calculate(process_rows: list[dict[str, str]], run_rows: list[dict[str, str]]
 
     # As trocas de contexto são uma propriedade da execução inteira, não de um
     # processo. Por isso vêm no segundo CSV e são associadas pela chave KEY.
-    switches = {}
+    runs = {}
     for raw in run_rows:
         key = tuple(raw[name].strip() for name in KEY)
-        if key in switches:
+        if key in runs:
             raise ValueError(f"execução duplicada: {key}")
-        value = int(raw["trocas_contexto"])
-        if value < 0:
-            raise ValueError(f"trocas de contexto negativas: {key}")
-        switches[key] = value
+        metadata = {
+            "num_processos": int(raw["num_processos"]),
+            "total_seeds": int(raw["total_seeds"]),
+            "quantum": int(raw["quantum"]),
+            "custo_troca": int(raw["custo_troca"]),
+            "trocas_contexto": int(raw["trocas_contexto"]),
+        }
+        if (metadata["num_processos"] <= 0 or metadata["total_seeds"] <= 0 or
+                metadata["quantum"] <= 0 or metadata["custo_troca"] <= 0 or
+                metadata["trocas_contexto"] < 0):
+            raise ValueError(f"configuração de execução inválida: {key}")
+        runs[key] = metadata
     # Toda execução presente em um CSV precisa estar presente no outro.
-    if set(grouped) != set(switches):
-        missing_runs = sorted(set(grouped) - set(switches))
-        missing_processes = sorted(set(switches) - set(grouped))
+    if set(grouped) != set(runs):
+        missing_runs = sorted(set(grouped) - set(runs))
+        missing_processes = sorted(set(runs) - set(grouped))
         raise ValueError(
             f"chaves incompatíveis; sem execução={missing_runs}; sem processos={missing_processes}"
         )
@@ -127,12 +138,21 @@ def calculate(process_rows: list[dict[str, str]], run_rows: list[dict[str, str]]
     per_run = []
     for key in sorted(grouped):
         items = grouped[key]
+        metadata = runs[key]
+        if len(items) != metadata["num_processos"]:
+            raise ValueError(
+                f"{key}: esperado(s) {metadata['num_processos']} processos, "
+                f"recebido(s) {len(items)}"
+            )
         slowdowns = [item["slowdown"] for item in items]
         per_run.append({
             "seed": key[0], "cenario": key[1], "algoritmo": key[2],
             "num_processos": len(items),
+            "total_seeds": metadata["total_seeds"],
+            "quantum": metadata["quantum"],
+            "custo_troca": metadata["custo_troca"],
             "turnaround_medio": statistics.fmean(item["turnaround"] for item in items),
-            "trocas_contexto": switches[key],
+            "trocas_contexto": metadata["trocas_contexto"],
             "slowdown_medio": statistics.fmean(slowdowns),
             "jain_slowdown_pct": jain(slowdowns),
         })
@@ -146,14 +166,21 @@ def summarize(per_run: list[dict]) -> list[dict]:
     tratados como experimentos independentes.
     """
     metrics = ("turnaround_medio", "trocas_contexto", "slowdown_medio", "jain_slowdown_pct")
-    groups: dict[tuple[str, str], list[dict]] = defaultdict(list)
+    groups: dict[tuple, list[dict]] = defaultdict(list)
     for row in per_run:
-        groups[(row["cenario"], row["algoritmo"])].append(row)
+        groups[(row["cenario"], row["algoritmo"], row["num_processos"],
+                row["total_seeds"], row["quantum"], row["custo_troca"])].append(row)
     summary = []
-    for (scenario, algorithm), rows in sorted(groups.items()):
+    for config_key, rows in sorted(groups.items()):
+        scenario, algorithm, process_count, total_seeds, quantum, context_cost = config_key
         seeds = [str(row["seed"]) for row in rows]
         if len(seeds) != len(set(seeds)):
             raise ValueError(f"seeds repetidas em {scenario}/{algorithm}")
+        if len(seeds) != total_seeds:
+            raise ValueError(
+                f"{scenario}/{algorithm}: esperado(s) {total_seeds} seeds, "
+                f"recebido(s) {len(seeds)}"
+            )
         for metric in metrics:
             values = [float(row[metric]) for row in rows]
             mean = statistics.fmean(values)
@@ -164,6 +191,8 @@ def summarize(per_run: list[dict]) -> list[dict]:
             margin = 1.96 * sd / math.sqrt(len(values))
             summary.append({
                 "cenario": scenario, "algoritmo": algorithm, "metrica": metric,
+                "num_processos": process_count, "total_seeds": total_seeds,
+                "quantum": quantum, "custo_troca": context_cost,
                 "n_seeds": len(values), "media": mean, "desvio_padrao": sd,
                 "ic95_inferior": mean - margin, "ic95_superior": mean + margin,
                 "margem_ic95": margin,

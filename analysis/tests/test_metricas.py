@@ -24,7 +24,11 @@ class MetricTests(unittest.TestCase):
             {"seed": "1", "cenario": "x", "algoritmo": "a", "pid": "1", "chegada": "0", "termino": "10", "cpu_total": "5", "io_total": "0"},
             {"seed": "1", "cenario": "x", "algoritmo": "a", "pid": "2", "chegada": "2", "termino": "14", "cpu_total": "4", "io_total": "2"},
         ]
-        runs = [{"seed": "1", "cenario": "x", "algoritmo": "a", "trocas_contexto": "7"}]
+        runs = [{
+            "seed": "1", "cenario": "x", "algoritmo": "a",
+            "num_processos": "2", "total_seeds": "1", "quantum": "4",
+            "custo_troca": "1", "trocas_contexto": "7",
+        }]
         detailed, per_run = analisar.calculate(processes, runs)
         self.assertEqual([row["slowdown"] for row in detailed], [2.0, 2.0])
         self.assertEqual(per_run[0]["turnaround_medio"], 11.0)
@@ -36,6 +40,7 @@ class MetricTests(unittest.TestCase):
         # denominador do erro-padrão é a raiz do número de seeds.
         rows = [
             {"seed": str(seed), "cenario": "x", "algoritmo": "a", "turnaround_medio": value,
+             "num_processos": 2, "total_seeds": 2, "quantum": 4, "custo_troca": 1,
              "trocas_contexto": value, "slowdown_medio": value, "jain_slowdown_pct": value}
             for seed, value in ((1, 10.0), (2, 14.0))
         ]

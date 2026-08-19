@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import argparse
 import csv
+import math
 from collections import defaultdict
 from pathlib import Path
 
@@ -80,6 +81,34 @@ def ordered(rows: list[dict], direction: str) -> list[dict]:
     return sorted(rows, key=lambda row: row["media"], reverse=direction == "max")
 
 
+def tied(first: float, second: float) -> bool:
+    """Considera empate apenas diferenças desprezíveis de arredondamento."""
+    return math.isclose(first, second, rel_tol=1e-12, abs_tol=1e-12)
+
+
+def best_names(rows: list[dict], direction: str) -> str:
+    """Retorna todos os algoritmos empatados na melhor média."""
+    ranking = ordered(rows, direction)
+    best_value = ranking[0]["media"]
+    return " / ".join(
+        item["algoritmo"] for item in ranking if tied(item["media"], best_value)
+    )
+
+
+def ranking_text(rows: list[dict], direction: str) -> str:
+    """Formata o ranking usando '=' entre médias empatadas."""
+    ranking = ordered(rows, direction)
+    groups: list[list[str]] = []
+    values: list[float] = []
+    for item in ranking:
+        if values and tied(item["media"], values[-1]):
+            groups[-1].append(item["algoritmo"])
+        else:
+            values.append(item["media"])
+            groups.append([item["algoritmo"]])
+    return " > ".join(" = ".join(group) for group in groups)
+
+
 def relative_advantage(epa: float, reference: float, direction: str) -> float:
     """Calcula vantagem percentual do EPA; positivo significa EPA favorável."""
     if reference == 0:
@@ -104,7 +133,6 @@ def build_comparisons(rows: list[dict]) -> list[dict]:
             raise ValueError(
                 f"{scenario}/{metric}: algoritmos ausentes: {', '.join(sorted(missing))}"
             )
-        ranking = ordered(items, direction)
         epa = by_algorithm["epa"]
         best_classical = ordered(
             [item for item in items if item["algoritmo"] in CLASSICAL], direction
@@ -117,12 +145,14 @@ def build_comparisons(rows: list[dict]) -> list[dict]:
             "metrica": metric,
             "titulo": title,
             "sentido_favoravel": favorable,
-            "melhor_geral": ranking[0]["algoritmo"],
-            "ranking": " > ".join(item["algoritmo"] for item in ranking),
+            "melhor_geral": best_names(items, direction),
+            "ranking": ranking_text(items, direction),
             "media_epa": epa["media"],
             "ic95_epa_inferior": epa["ic95_inferior"],
             "ic95_epa_superior": epa["ic95_superior"],
-            "melhor_classico": best_classical["algoritmo"],
+            "melhor_classico": best_names(
+                [item for item in items if item["algoritmo"] in CLASSICAL], direction
+            ),
             "media_melhor_classico": best_classical["media"],
             "vantagem_epa_pct": advantage,
             "ic95_sobrepoe_melhor_classico": (
