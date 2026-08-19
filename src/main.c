@@ -33,7 +33,7 @@ int main(int argc, char **argv) {
     if (argc > 2) config.quantum = atoi(argv[2]);
     if (argc > 3) config.context_switch_cost = atoi(argv[3]);
     if (simulator_run(workload, 3, &config, &result) != 0) {
-        fprintf(stderr, "Configuracao invalida ou falha na simulacao.\n");
+        fprintf(stderr, "Configuração inválida ou falha na simulação.\n");
         return 1;
     }
     printf("Algoritmo: %s\nTempo final: %d\nTrocas de contexto: %d\nLinha do tempo:",
@@ -46,7 +46,7 @@ int main(int argc, char **argv) {
     }
     putchar('\n');
     for (i = 0; i < result.process_count; ++i)
-        printf("P%d: conclusao=%d turnaround=%d CPU=%d E/S=%d\n",
+        printf("P%d: conclusão=%d turnaround=%d CPU=%d E/S=%d\n",
                result.processes[i].id, result.processes[i].completion_time,
                result.processes[i].completion_time - result.processes[i].arrival_time,
                result.processes[i].total_cpu_time, result.processes[i].total_io_time);

@@ -1,6 +1,6 @@
 #include "scheduler_internal.h"
 
-int scheduler_choose_fcfs(const RuntimeProcess *processes, size_t count) {
+int scheduler_choose_fcfs(const PCB *processes, size_t count) {
     int best = -1;
     size_t i;
     for (i = 0; i < count; ++i) {

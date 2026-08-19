@@ -2,5 +2,9 @@ simulator
 simulator.exe
 test_schedulers
 test_schedulers.exe
+test_scenarios
+test_scenarios.exe
+test_workload
+test_workload.exe
 *.o
 documentacao_simulador

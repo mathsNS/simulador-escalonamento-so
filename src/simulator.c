@@ -4,16 +4,16 @@
 #include <stdlib.h>
 #include <string.h>
 
-int scheduler_choose_round_robin(const RuntimeProcess *, size_t);
+int scheduler_choose_round_robin(const PCB *, size_t);
 
 /* Incrementa o tempo de espera acumulado (epa_waiting_ticks) de cada processo
-   pronto. Chamada uma vez para cada unidade de tempo simulada, logo apos os
+   pronto. Chamada uma vez para cada unidade de tempo simulada, logo após os
    eventos de chegada/desbloqueio daquele instante serem admitidos - por isso
-   um processo que acabou de ficar pronto neste mesmo instante ja conta 1
-   tick de espera; e uma aproximacao deliberada e documentada, sem efeito
-   sobre FCFS/RR/prioridade, que nao leem este campo. Faz parte da extensao
-   de nucleo que suporta o EPA (algoritmo proprio da equipe, scheduler_epa.c). */
-static void epa_tick_waiting(RuntimeProcess *processes, size_t count) {
+   um processo que acabou de ficar pronto neste mesmo instante já conta 1
+   tick de espera; é uma aproximação deliberada e documentada, sem efeito
+   sobre FCFS/RR/prioridade, que não leem este campo. Faz parte da extensão
+   de núcleo que suporta o EPA (algoritmo próprio da equipe, scheduler_epa.c). */
+static void epa_tick_waiting(PCB *processes, size_t count) {
     size_t i;
     for (i = 0; i < count; ++i)
         if (processes[i].state == PROCESS_READY)
@@ -51,18 +51,36 @@ static int validate(const ProcessSpec *specs, size_t count,
     return 0;
 }
 
-static void make_ready(RuntimeProcess *process, unsigned long long *order) {
+/*
+ * Fila de prontos: não existe um vetor/lista separado para ela. É o
+ * conjunto implícito de todos os PCBs com state == PROCESS_READY, e cada
+ * um guarda em ready_order o instante (contador monotônico) em que entrou
+ * nesse estado. Os escalonadores (scheduler_choose_*) varrem os PCBs e
+ * consideram apenas os que estão READY; ready_order dá a ordem FIFO usada
+ * por FCFS/Round Robin e como critério de desempate na Prioridade.
+ * Assim, por definição, só processos aptos a usar a CPU (READY) disputam
+ * o próximo turno; NEW e BLOCKED nunca são escolhidos.
+ */
+static void make_ready(PCB *process, unsigned long long *order) {
     process->state = PROCESS_READY;
     process->ready_order = (*order)++;
     /* Reinicia a contagem de espera do EPA a cada nova entrada na fila de
-       prontos (apos E/S, apos preempcao, etc.). Ver scheduler_epa.c. */
+       prontos (após E/S, após preempção, etc.). Ver scheduler_epa.c. */
     process->epa_waiting_ticks = 0;
 }
 
-static void admit_events(RuntimeProcess *processes, size_t count, int time,
+/*
+ * Transições que devolvem um processo a fila de prontos (-> READY):
+ *   - NEW -> READY quando o tempo de chegada é alcançado;
+ *   - BLOCKED -> READY quando sua requisição de E/S termina (unblock_time).
+ * Chegadas são aplicadas antes de conclusões de E/S no mesmo instante; a
+ * ordem entre elas segue o vetor da carga, o que define o desempate em
+ * ready_order quando vários eventos coincidem em t.
+ */
+static void admit_events(PCB *processes, size_t count, int time,
                          unsigned long long *order) {
     size_t i;
-    /* Chegadas precedem conclusoes de E/S no mesmo instante. */
+    /* Chegadas precedem conclusões de E/S no mesmo instante. */
     for (i = 0; i < count; ++i)
         if (processes[i].state == PROCESS_NEW &&
             processes[i].spec.arrival_time == time)
@@ -86,7 +104,7 @@ static int record_interval(SimulationResult *result, int enabled, int value,
 
 int simulator_run(const ProcessSpec *specs, size_t count,
                   const SimulationConfig *config, SimulationResult *result) {
-    RuntimeProcess *processes = NULL;
+    PCB *processes = NULL;
     ChooseProcess choose;
     unsigned long long order = 0;
     size_t i, j, finished = 0;
@@ -110,8 +128,8 @@ int simulator_run(const ProcessSpec *specs, size_t count,
             processes[i].total_cpu += specs[i].bursts[j];
         for (j = 1; j < specs[i].burst_count; j += 2)
             processes[i].total_io += specs[i].bursts[j];
-        /* Estado do EPA: nada observado ainda, entao usa a estimativa neutra
-           padrao em vez de espiar a primeira rajada real (o que seria
+        /* Estado do EPA: nada observado ainda, então usa a estimativa neutra
+           padrão em vez de espiar a primeira rajada real (o que seria
            conhecimento futuro). Ver scheduler_epa.c. */
         processes[i].epa_predicted_burst = EPA_INITIAL_BURST_ESTIMATE;
     }
@@ -131,6 +149,20 @@ int simulator_run(const ProcessSpec *specs, size_t count,
                 last_pid = SIM_IDLE;
                 continue;
             }
+            /*
+             * Troca de contexto:
+             *   - Quando ocorre: apenas quando a CPU passa diretamente de um
+             *     PID para outro PID diferente (last_pid != SIM_IDLE evita
+             *     contar a primeira execução e a retomada após ociosidade).
+             *   - Duração: config->context_switch_cost unidades de tempo,
+             *     configurável e igual para todos os algoritmos comparados
+             *     num mesmo experimento.
+             *   - Disponibilidade da CPU: indisponível durante o custo -
+             *     nenhum processo executa nesse intervalo (a linha do tempo
+             *     registra SIM_CONTEXT_SWITCH), mas o relógio avança e
+             *     admit_events() continua processando chegadas/retornos de
+             *     E/S normalmente.
+             */
             if (last_pid != SIM_IDLE && last_pid != processes[next].spec.id) {
                 int c;
                 ++result->context_switches;
@@ -159,10 +191,29 @@ int simulator_run(const ProcessSpec *specs, size_t count,
         last_pid = processes[running].spec.id;
 
         if (processes[running].remaining == 0) {
-            RuntimeProcess *p = &processes[running];
-            /* A rajada de CPU que acabou de terminar so e conhecida agora,
-               nao antes: e o unico dado que o EPA usa para reestimar a
-               proxima rajada (media movel exponencial). Ver scheduler_epa.c. */
+            /*
+             * Transição RUNNING -> E/S ou -> FINISHED: a rajada de CPU
+             * atual acabou de esgotar (remaining chegou a 0).
+             *
+             * Lógica de bloqueio por E/S (não há estrutura de dispositivo
+             * físico no modelo):
+             *   - Quando ocorre: exatamente aqui, ao final de uma rajada de
+             *     CPU que não é a última do processo.
+             *   - Duração: pela duração da próxima rajada em
+             *     spec.bursts (bursts[burst_index], índice ímpar).
+             *   - Paralelismo: cada processo bloqueia de forma
+             *     independente; não há fila de dispositivo nem limite de
+             *     E/S simultâneas, ou seja, o modelo equivale a um
+             *     dispositivo dedicado (sem contenção) por processo.
+             *   - Retorno à fila de prontos: agendado para
+             *     unblock_time = time + io_duration e efetivado em
+             *     admit_events() quando o relógio alcança esse instante
+             *     (BLOCKED -> READY).
+             */
+            PCB *p = &processes[running];
+            /* A rajada de CPU que acabou de terminar só é conhecida agora,
+               não antes: é o único dado que o EPA usa para reestimar a
+               próxima rajada (média móvel exponencial). */
             int observed_cpu_burst = p->spec.bursts[p->burst_index];
             p->epa_observed_cpu_time += observed_cpu_burst;
             p->epa_predicted_burst = 0.5 * (double)observed_cpu_burst +
@@ -217,7 +268,7 @@ const char *scheduler_algorithm_name(SchedulerAlgorithm algorithm) {
     switch (algorithm) {
     case SCHED_FCFS: return "FCFS";
     case SCHED_ROUND_ROBIN: return "Round Robin";
-    case SCHED_PRIORITY: return "Prioridade nao preemptiva";
+    case SCHED_PRIORITY: return "Prioridade não preemptiva";
     case SCHED_EPA: return "EPA (Escalonador Preditivo Adaptativo)";
     default: return "Desconhecido";
     }

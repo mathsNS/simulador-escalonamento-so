@@ -68,14 +68,14 @@ static void test_context_switch_cost(void) {
     simulator_result_destroy(&result);
 }
 
-/* EPA (Escalonador Preditivo Adaptativo) - algoritmo proprio da equipe,
+/* EPA (Escalonador Preditivo Adaptativo) - algoritmo próprio da equipe,
    ver src/scheduler_epa.c. P1 e P2 chegam juntos com a mesma prioridade e
-   nenhum historico; empatam e P1 e escolhido por ready_order (menor indice
-   na carga). Como o EPA so decide quando a CPU fica livre, P2 (rajada unica
-   de 10) executa ate o fim sem ser interrompido mesmo enquanto P1 envelhece
-   esperando - isso ilustra deliberadamente a natureza nao-preemptiva do
-   algoritmo (ver limitacoes documentadas em scheduler_epa.c). P1 retoma ao
-   final para sua ultima rajada de CPU (2), apos a E/S intermediaria (1) ja
+   nenhum histórico; empatam e P1 é escolhido por ready_order (menor índice
+   na carga). Como o EPA só decide quando a CPU fica livre, P2 (rajada única
+   de 10) executa até o fim sem ser interrompido mesmo enquanto P1 envelhece
+   esperando - isso ilustra deliberadamente a natureza não preemptiva do
+   algoritmo (ver limitações documentadas em scheduler_epa.c). P1 retoma ao
+   final para sua última rajada de CPU (2), após a E/S intermediária (1) já
    ter sido cumprida enquanto P2 executava. */
 static void test_epa_non_preemptive_and_tie_break(void) {
     const int a[] = {2, 1, 2}; const int b[] = {10};
@@ -84,12 +84,12 @@ static void test_epa_non_preemptive_and_tie_break(void) {
     expect_timeline(SCHED_EPA, 1, p, 2, expected, 14);
 }
 
-/* TODO(Abner): cobertura adicional do EPA - em especial o efeito do bonus de
+/* TODO(Abner): cobertura adicional do EPA - em especial o efeito do bônus de
    afinidade de E/S e da garantia de espera limitada por envelhecimento em
-   cenarios com 3+ processos - depende dos 4 cenarios obrigatorios da Maria
-   e/ou do harness de metricas da equipe para comparacao quantitativa
-   (turnaround medio, slowdown, indice de Jain) contra FCFS/RR/prioridade.
-   Ver observacoes de integracao no topo desta secao e no README. */
+   cenários com 3+ processos - depende dos 4 cenários obrigatórios da Maria
+   e/ou do harness de métricas da equipe para comparação quantitativa
+   (turnaround médio, slowdown, índice de Jain) contra FCFS/RR/prioridade.
+   Ver observações de integração no topo desta seção e no README. */
 
 static void test_invalid_quantum(void) {
     const int burst[] = {1};
@@ -104,7 +104,7 @@ int main(void) {
     test_fcfs_arrivals_and_idle();
     puts("Round Robin: quantum"); fflush(stdout);
     test_round_robin_quantum_and_short_burst();
-    puts("Prioridade: nao preemptivo e empate"); fflush(stdout);
+    puts("Prioridade: não preemptivo e empate"); fflush(stdout);
     test_priority_non_preemptive_and_tie();
     puts("FCFS: retorno de E/S"); fflush(stdout);
     test_io_return();
@@ -112,9 +112,9 @@ int main(void) {
     test_round_robin_io_before_quantum();
     puts("Troca de contexto"); fflush(stdout);
     test_context_switch_cost();
-    puts("EPA: nao-preemptivo e empate inicial"); fflush(stdout);
+    puts("EPA: não preemptivo e empate inicial"); fflush(stdout);
     test_epa_non_preemptive_and_tie_break();
-    puts("Validacao de quantum"); fflush(stdout);
+    puts("Validação de quantum"); fflush(stdout);
     test_invalid_quantum();
     puts("Todos os testes passaram.");
     return 0;
