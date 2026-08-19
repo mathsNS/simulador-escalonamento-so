@@ -201,6 +201,8 @@ O EPA combina previsão de rajada, envelhecimento e afinidade com E/S:
 Os pesos atuais do EPA (`EPA_AGING_WEIGHT`, `EPA_IO_WEIGHT` e
 `EPA_PRIORITY_WEIGHT`) são constantes de compilação. O algoritmo possui teste
 determinístico e participa do executor dos quatro cenários obrigatórios.
+A descrição completa da fórmula, atualização do histórico, desempates e
+limitações está em `docs/algoritmo_epa.md`.
 
 ## Experimentos, métricas e gráficos
 
