@@ -22,7 +22,7 @@ const char *scenario_name(ScenarioKind kind);
 /*
  * Preset de WorkloadParams do cenário para `process_count` processos. Os
  * mesmos parâmetros (exceto a seed) devem ser usados por todos os
- * algoritmos avaliados dentro do cenario.
+ * algoritmos avaliados dentro do cenário.
  */
 WorkloadParams scenario_params(ScenarioKind kind, size_t process_count);
 
