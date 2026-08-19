@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-int scheduler_choose_round_robin(const RuntimeProcess *, size_t);
+int scheduler_choose_round_robin(const PCB *, size_t);
 
 static int append_timeline(SimulationResult *result, int value) {
     int *new_items = realloc(result->timeline,
@@ -37,12 +37,12 @@ static int validate(const ProcessSpec *specs, size_t count,
     return 0;
 }
 
-static void make_ready(RuntimeProcess *process, unsigned long long *order) {
+static void make_ready(PCB *process, unsigned long long *order) {
     process->state = PROCESS_READY;
     process->ready_order = (*order)++;
 }
 
-static void admit_events(RuntimeProcess *processes, size_t count, int time,
+static void admit_events(PCB *processes, size_t count, int time,
                          unsigned long long *order) {
     size_t i;
     /* Chegadas precedem conclusoes de E/S no mesmo instante. */
@@ -69,7 +69,7 @@ static int record_interval(SimulationResult *result, int enabled, int value,
 
 int simulator_run(const ProcessSpec *specs, size_t count,
                   const SimulationConfig *config, SimulationResult *result) {
-    RuntimeProcess *processes = NULL;
+    PCB *processes = NULL;
     ChooseProcess choose;
     unsigned long long order = 0;
     size_t i, j, finished = 0;
@@ -135,7 +135,7 @@ int simulator_run(const ProcessSpec *specs, size_t count,
         last_pid = processes[running].spec.id;
 
         if (processes[running].remaining == 0) {
-            RuntimeProcess *p = &processes[running];
+            PCB *p = &processes[running];
             ++p->burst_index;
             if (p->burst_index == p->spec.burst_count) {
                 p->state = PROCESS_FINISHED;
