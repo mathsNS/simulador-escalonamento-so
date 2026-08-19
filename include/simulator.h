@@ -14,7 +14,8 @@ typedef enum {
 typedef enum {
     SCHED_FCFS,
     SCHED_ROUND_ROBIN,
-    SCHED_PRIORITY
+    SCHED_PRIORITY,
+    SCHED_EPA /* Algoritmo proprio da equipe: ver scheduler_epa.c. */
 } SchedulerAlgorithm;
 
 typedef struct {

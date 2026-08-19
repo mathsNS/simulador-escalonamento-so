@@ -6,6 +6,20 @@
 
 int scheduler_choose_round_robin(const RuntimeProcess *, size_t);
 
+/* Incrementa o tempo de espera acumulado (epa_waiting_ticks) de cada processo
+   pronto. Chamada uma vez para cada unidade de tempo simulada, logo apos os
+   eventos de chegada/desbloqueio daquele instante serem admitidos - por isso
+   um processo que acabou de ficar pronto neste mesmo instante ja conta 1
+   tick de espera; e uma aproximacao deliberada e documentada, sem efeito
+   sobre FCFS/RR/prioridade, que nao leem este campo. Faz parte da extensao
+   de nucleo que suporta o EPA (algoritmo proprio da equipe, scheduler_epa.c). */
+static void epa_tick_waiting(RuntimeProcess *processes, size_t count) {
+    size_t i;
+    for (i = 0; i < count; ++i)
+        if (processes[i].state == PROCESS_READY)
+            ++processes[i].epa_waiting_ticks;
+}
+
 static int append_timeline(SimulationResult *result, int value) {
     int *new_items = realloc(result->timeline,
                              (result->timeline_length + 1) * sizeof(*new_items));
@@ -21,7 +35,7 @@ static int validate(const ProcessSpec *specs, size_t count,
     size_t i, j, k;
     if (!specs || !config || count == 0 || config->context_switch_cost < 0 ||
         (config->algorithm == SCHED_ROUND_ROBIN && config->quantum <= 0) ||
-        config->algorithm < SCHED_FCFS || config->algorithm > SCHED_PRIORITY)
+        config->algorithm < SCHED_FCFS || config->algorithm > SCHED_EPA)
         return -1;
     for (i = 0; i < count; ++i) {
         if (specs[i].id < 0 || specs[i].arrival_time < 0 || !specs[i].bursts ||
@@ -40,6 +54,9 @@ static int validate(const ProcessSpec *specs, size_t count,
 static void make_ready(RuntimeProcess *process, unsigned long long *order) {
     process->state = PROCESS_READY;
     process->ready_order = (*order)++;
+    /* Reinicia a contagem de espera do EPA a cada nova entrada na fila de
+       prontos (apos E/S, apos preempcao, etc.). Ver scheduler_epa.c. */
+    process->epa_waiting_ticks = 0;
 }
 
 static void admit_events(RuntimeProcess *processes, size_t count, int time,
@@ -93,9 +110,14 @@ int simulator_run(const ProcessSpec *specs, size_t count,
             processes[i].total_cpu += specs[i].bursts[j];
         for (j = 1; j < specs[i].burst_count; j += 2)
             processes[i].total_io += specs[i].bursts[j];
+        /* Estado do EPA: nada observado ainda, entao usa a estimativa neutra
+           padrao em vez de espiar a primeira rajada real (o que seria
+           conhecimento futuro). Ver scheduler_epa.c. */
+        processes[i].epa_predicted_burst = EPA_INITIAL_BURST_ESTIMATE;
     }
     choose = config->algorithm == SCHED_PRIORITY ? scheduler_choose_priority :
              config->algorithm == SCHED_ROUND_ROBIN ? scheduler_choose_round_robin :
+             config->algorithm == SCHED_EPA ? scheduler_choose_epa :
              scheduler_choose_fcfs;
 
     while (finished < count) {
@@ -118,6 +140,7 @@ int simulator_run(const ProcessSpec *specs, size_t count,
                         goto fail;
                     ++time;
                     admit_events(processes, count, time, &order);
+                    epa_tick_waiting(processes, count);
                 }
             }
             running = next;
@@ -132,10 +155,18 @@ int simulator_run(const ProcessSpec *specs, size_t count,
         ++quantum_used;
         ++time;
         admit_events(processes, count, time, &order);
+        epa_tick_waiting(processes, count);
         last_pid = processes[running].spec.id;
 
         if (processes[running].remaining == 0) {
             RuntimeProcess *p = &processes[running];
+            /* A rajada de CPU que acabou de terminar so e conhecida agora,
+               nao antes: e o unico dado que o EPA usa para reestimar a
+               proxima rajada (media movel exponencial). Ver scheduler_epa.c. */
+            int observed_cpu_burst = p->spec.bursts[p->burst_index];
+            p->epa_observed_cpu_time += observed_cpu_burst;
+            p->epa_predicted_burst = 0.5 * (double)observed_cpu_burst +
+                                     0.5 * p->epa_predicted_burst;
             ++p->burst_index;
             if (p->burst_index == p->spec.burst_count) {
                 p->state = PROCESS_FINISHED;
@@ -143,6 +174,7 @@ int simulator_run(const ProcessSpec *specs, size_t count,
                 ++finished;
             } else {
                 int io_duration = p->spec.bursts[p->burst_index];
+                p->epa_observed_io_time += io_duration;
                 ++p->burst_index;
                 p->remaining = p->spec.bursts[p->burst_index];
                 p->unblock_time = time + io_duration;
@@ -186,6 +218,7 @@ const char *scheduler_algorithm_name(SchedulerAlgorithm algorithm) {
     case SCHED_FCFS: return "FCFS";
     case SCHED_ROUND_ROBIN: return "Round Robin";
     case SCHED_PRIORITY: return "Prioridade nao preemptiva";
+    case SCHED_EPA: return "EPA (Escalonador Preditivo Adaptativo)";
     default: return "Desconhecido";
     }
 }

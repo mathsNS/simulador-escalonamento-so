@@ -8,6 +8,7 @@ static int parse_algorithm(const char *name, SchedulerAlgorithm *algorithm) {
     if (strcmp(name, "fcfs") == 0) *algorithm = SCHED_FCFS;
     else if (strcmp(name, "rr") == 0) *algorithm = SCHED_ROUND_ROBIN;
     else if (strcmp(name, "priority") == 0) *algorithm = SCHED_PRIORITY;
+    else if (strcmp(name, "epa") == 0) *algorithm = SCHED_EPA;
     else return -1;
     return 0;
 }
@@ -26,7 +27,7 @@ int main(int argc, char **argv) {
     size_t i;
 
     if (argc > 1 && parse_algorithm(argv[1], &config.algorithm) != 0) {
-        fprintf(stderr, "Uso: %s [fcfs|rr|priority] [quantum] [custo-troca]\n", argv[0]);
+        fprintf(stderr, "Uso: %s [fcfs|rr|priority|epa] [quantum] [custo-troca]\n", argv[0]);
         return 2;
     }
     if (argc > 2) config.quantum = atoi(argv[2]);
