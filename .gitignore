@@ -8,5 +8,19 @@ test_workload
 test_workload.exe
 *.o
 documentacao_simulador
+simulador
+simulador.exe
+
+# Executável dos experimentos
+experiment
+experiment.exe
+
+# Arquivos temporários do Python
 __pycache__/
 *.py[cod]
+
+# Dados brutos dos experimentos
+/dados/
+
+# Resultado individual de 1,6 milhão de processos
+/resultados/metricas_processos.csv

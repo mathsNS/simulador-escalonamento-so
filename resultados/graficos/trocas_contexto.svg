@@ -1,0 +1,94 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="620" viewBox="0 0 1100 620">
+<rect width="100%" height="100%" fill="white"/>
+<text x="550.0" y="32" text-anchor="middle" font-family="Arial" font-size="22" font-weight="bold">trocas_contexto</text>
+<line x1="100" y1="70" x2="100" y2="470" stroke="#111"/>
+<line x1="100" y1="470" x2="1070" y2="470" stroke="#111"/>
+<line x1="100" y1="470.0" x2="1070" y2="470.0" stroke="#e5e7eb"/>
+<text x="90" y="474.0" text-anchor="end" font-family="Arial" font-size="12">0.00</text>
+<line x1="100" y1="390.0" x2="1070" y2="390.0" stroke="#e5e7eb"/>
+<text x="90" y="394.0" text-anchor="end" font-family="Arial" font-size="12">2171.99</text>
+<line x1="100" y1="310.0" x2="1070" y2="310.0" stroke="#e5e7eb"/>
+<text x="90" y="314.0" text-anchor="end" font-family="Arial" font-size="12">4343.98</text>
+<line x1="100" y1="230.0" x2="1070" y2="230.0" stroke="#e5e7eb"/>
+<text x="90" y="234.0" text-anchor="end" font-family="Arial" font-size="12">6515.98</text>
+<line x1="100" y1="150.0" x2="1070" y2="150.0" stroke="#e5e7eb"/>
+<text x="90" y="154.0" text-anchor="end" font-family="Arial" font-size="12">8687.97</text>
+<line x1="100" y1="70.0" x2="1070" y2="70.0" stroke="#e5e7eb"/>
+<text x="90" y="74.0" text-anchor="end" font-family="Arial" font-size="12">10859.96</text>
+<text x="221.2" y="498" text-anchor="middle" font-family="Arial" font-size="12">cpu_bound</text>
+<circle cx="170.2" cy="414.8" r="5" fill="#2563eb"/>
+<line x1="170.2" y1="414.7" x2="170.2" y2="414.9" stroke="#2563eb" stroke-width="2"/>
+<line x1="165.2" y1="414.7" x2="175.2" y2="414.7" stroke="#2563eb"/>
+<line x1="165.2" y1="414.9" x2="175.2" y2="414.9" stroke="#2563eb"/>
+<circle cx="204.2" cy="414.8" r="5" fill="#dc2626"/>
+<line x1="204.2" y1="414.7" x2="204.2" y2="414.9" stroke="#dc2626" stroke-width="2"/>
+<line x1="199.2" y1="414.7" x2="209.2" y2="414.7" stroke="#dc2626"/>
+<line x1="199.2" y1="414.9" x2="209.2" y2="414.9" stroke="#dc2626"/>
+<circle cx="238.2" cy="414.8" r="5" fill="#16a34a"/>
+<line x1="238.2" y1="414.7" x2="238.2" y2="414.9" stroke="#16a34a" stroke-width="2"/>
+<line x1="233.2" y1="414.7" x2="243.2" y2="414.7" stroke="#16a34a"/>
+<line x1="233.2" y1="414.9" x2="243.2" y2="414.9" stroke="#16a34a"/>
+<circle cx="272.2" cy="71.1" r="5" fill="#9333ea"/>
+<line x1="272.2" y1="70.0" x2="272.2" y2="72.3" stroke="#9333ea" stroke-width="2"/>
+<line x1="267.2" y1="70.0" x2="277.2" y2="70.0" stroke="#9333ea"/>
+<line x1="267.2" y1="72.3" x2="277.2" y2="72.3" stroke="#9333ea"/>
+<text x="463.8" y="498" text-anchor="middle" font-family="Arial" font-size="12">equilibrado</text>
+<circle cx="412.8" cy="341.2" r="5" fill="#2563eb"/>
+<line x1="412.8" y1="340.8" x2="412.8" y2="341.7" stroke="#2563eb" stroke-width="2"/>
+<line x1="407.8" y1="340.8" x2="417.8" y2="340.8" stroke="#2563eb"/>
+<line x1="407.8" y1="341.7" x2="417.8" y2="341.7" stroke="#2563eb"/>
+<circle cx="446.8" cy="341.2" r="5" fill="#dc2626"/>
+<line x1="446.8" y1="340.8" x2="446.8" y2="341.7" stroke="#dc2626" stroke-width="2"/>
+<line x1="441.8" y1="340.8" x2="451.8" y2="340.8" stroke="#dc2626"/>
+<line x1="441.8" y1="341.7" x2="451.8" y2="341.7" stroke="#dc2626"/>
+<circle cx="480.8" cy="341.2" r="5" fill="#16a34a"/>
+<line x1="480.8" y1="340.8" x2="480.8" y2="341.7" stroke="#16a34a" stroke-width="2"/>
+<line x1="475.8" y1="340.8" x2="485.8" y2="340.8" stroke="#16a34a"/>
+<line x1="475.8" y1="341.7" x2="485.8" y2="341.7" stroke="#16a34a"/>
+<circle cx="514.8" cy="83.9" r="5" fill="#9333ea"/>
+<line x1="514.8" y1="82.4" x2="514.8" y2="85.4" stroke="#9333ea" stroke-width="2"/>
+<line x1="509.8" y1="82.4" x2="519.8" y2="82.4" stroke="#9333ea"/>
+<line x1="509.8" y1="85.4" x2="519.8" y2="85.4" stroke="#9333ea"/>
+<text x="706.2" y="498" text-anchor="middle" font-family="Arial" font-size="12">io_bound</text>
+<circle cx="655.2" cy="230.8" r="5" fill="#2563eb"/>
+<line x1="655.2" y1="230.3" x2="655.2" y2="231.2" stroke="#2563eb" stroke-width="2"/>
+<line x1="650.2" y1="230.3" x2="660.2" y2="230.3" stroke="#2563eb"/>
+<line x1="650.2" y1="231.2" x2="660.2" y2="231.2" stroke="#2563eb"/>
+<circle cx="689.2" cy="230.8" r="5" fill="#dc2626"/>
+<line x1="689.2" y1="230.3" x2="689.2" y2="231.2" stroke="#dc2626" stroke-width="2"/>
+<line x1="684.2" y1="230.3" x2="694.2" y2="230.3" stroke="#dc2626"/>
+<line x1="684.2" y1="231.2" x2="694.2" y2="231.2" stroke="#dc2626"/>
+<circle cx="723.2" cy="230.8" r="5" fill="#16a34a"/>
+<line x1="723.2" y1="230.3" x2="723.2" y2="231.2" stroke="#16a34a" stroke-width="2"/>
+<line x1="718.2" y1="230.3" x2="728.2" y2="230.3" stroke="#16a34a"/>
+<line x1="718.2" y1="231.2" x2="728.2" y2="231.2" stroke="#16a34a"/>
+<circle cx="757.2" cy="230.8" r="5" fill="#9333ea"/>
+<line x1="757.2" y1="230.3" x2="757.2" y2="231.2" stroke="#9333ea" stroke-width="2"/>
+<line x1="752.2" y1="230.3" x2="762.2" y2="230.3" stroke="#9333ea"/>
+<line x1="752.2" y1="231.2" x2="762.2" y2="231.2" stroke="#9333ea"/>
+<text x="948.8" y="498" text-anchor="middle" font-family="Arial" font-size="12">prioridades_desbalanceadas</text>
+<circle cx="897.8" cy="341.2" r="5" fill="#2563eb"/>
+<line x1="897.8" y1="340.8" x2="897.8" y2="341.7" stroke="#2563eb" stroke-width="2"/>
+<line x1="892.8" y1="340.8" x2="902.8" y2="340.8" stroke="#2563eb"/>
+<line x1="892.8" y1="341.7" x2="902.8" y2="341.7" stroke="#2563eb"/>
+<circle cx="931.8" cy="341.2" r="5" fill="#dc2626"/>
+<line x1="931.8" y1="340.8" x2="931.8" y2="341.7" stroke="#dc2626" stroke-width="2"/>
+<line x1="926.8" y1="340.8" x2="936.8" y2="340.8" stroke="#dc2626"/>
+<line x1="926.8" y1="341.7" x2="936.8" y2="341.7" stroke="#dc2626"/>
+<circle cx="965.8" cy="341.2" r="5" fill="#16a34a"/>
+<line x1="965.8" y1="340.8" x2="965.8" y2="341.7" stroke="#16a34a" stroke-width="2"/>
+<line x1="960.8" y1="340.8" x2="970.8" y2="340.8" stroke="#16a34a"/>
+<line x1="960.8" y1="341.7" x2="970.8" y2="341.7" stroke="#16a34a"/>
+<circle cx="999.8" cy="83.7" r="5" fill="#9333ea"/>
+<line x1="999.8" y1="82.3" x2="999.8" y2="85.2" stroke="#9333ea" stroke-width="2"/>
+<line x1="994.8" y1="82.3" x2="1004.8" y2="82.3" stroke="#9333ea"/>
+<line x1="994.8" y1="85.2" x2="1004.8" y2="85.2" stroke="#9333ea"/>
+<circle cx="100" cy="550" r="5" fill="#2563eb"/>
+<text x="112" y="554" font-family="Arial" font-size="13">epa</text>
+<circle cx="290" cy="550" r="5" fill="#dc2626"/>
+<text x="302" y="554" font-family="Arial" font-size="13">fcfs</text>
+<circle cx="480" cy="550" r="5" fill="#16a34a"/>
+<text x="492" y="554" font-family="Arial" font-size="13">prioridade</text>
+<circle cx="670" cy="550" r="5" fill="#9333ea"/>
+<text x="682" y="554" font-family="Arial" font-size="13">round_robin</text>
+</svg>
