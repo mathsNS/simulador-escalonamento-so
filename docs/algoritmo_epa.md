@@ -28,8 +28,8 @@ primeira estimativa é igual para todos os processos:
 estimativa_inicial = 5
 ```
 
-Assim, processos sem histórico são diferenciados pelo tempo de espera, pela
-prioridade e pelos critérios de desempate.
+Assim, processos sem histórico são diferenciados pelos demais critérios e
+pelos desempates.
 
 ## Previsão da próxima rajada
 
@@ -61,34 +61,53 @@ com E/S.
 
 `epa_waiting_ticks` é incrementado a cada unidade de tempo em que o processo
 permanece pronto. O contador é reiniciado quando ele entra ou retorna à fila.
-Como o tempo de espera reduz continuamente a pontuação, um processo adquire
-preferência enquanto aguarda, reduzindo o risco de inanição.
+Na escolha, a espera é dividida pela maior espera entre os processos prontos.
+Seu valor normalizado fica entre `0` e `1`, aumentando a preferência de quem
+aguarda sem permitir que a quantidade bruta de ticks domine a pontuação.
 
 O envelhecimento não torna o algoritmo preemptivo: uma rajada em execução não
 é interrompida, mesmo que outro processo acumule uma pontuação melhor.
 
 ## Regra de escolha
 
-Para cada processo pronto, o EPA calcula:
+Antes de calcular o score, previsão e prioridade passam por normalização
+min-max no conjunto de processos prontos:
 
 ```text
-score = previsao_rajada
-      - 1,0 * tempo_espera
-      - 3,0 * afinidade_es
-      + 0,5 * prioridade
+x_norm = (x - menor_x) / (maior_x - menor_x)
+espera_norm = espera / maior_espera
 ```
 
-O processo com menor `score` é escolhido. Como valores numéricos menores
-representam prioridades maiores, o último termo preserva a convenção adotada
-pelo simulador.
+Se todos os valores de um critério forem iguais, sua parcela normalizada vale
+zero. A afinidade com E/S já é uma razão entre `0` e `1`. Com todos os termos
+na mesma escala, o EPA calcula:
+
+```text
+score = 0,40 * previsao_norm
+      - 0,30 * espera_norm
+      - 0,20 * afinidade_es
+      + 0,10 * prioridade_norm
+```
+
+O processo com menor `score` é escolhido. O sinal negativo da espera e da
+afinidade representa bônus; o sinal positivo da previsão e da prioridade
+representa custo. Como valores numéricos menores indicam prioridades maiores,
+a normalização preserva a convenção adotada pelo simulador.
+
+Os pesos expressam uma decisão de projeto: a previsão de rajada é o critério
+principal, a espera recebe peso suficiente para influenciar a ordem sem ser
+ilimitada, a afinidade com E/S recebe um bônus intermediário e a prioridade
+estática atua como critério complementar. Eles não foram ajustados com os dados
+dos experimentos.
 
 Os pesos atuais são constantes de compilação em `src/scheduler_epa.c`:
 
-| Termo | Constante | Valor |
+| Termo | Constante | Peso |
 |---|---|---:|
-| Envelhecimento | `EPA_AGING_WEIGHT` | 1,0 |
-| Afinidade com E/S | `EPA_IO_WEIGHT` | 3,0 |
-| Prioridade estática | `EPA_PRIORITY_WEIGHT` | 0,5 |
+| Previsão de rajada | `EPA_PREDICTION_WEIGHT` | 0,40 |
+| Tempo de espera | `EPA_WAITING_WEIGHT` | 0,30 |
+| Afinidade com E/S | `EPA_IO_WEIGHT` | 0,20 |
+| Prioridade estática | `EPA_PRIORITY_WEIGHT` | 0,10 |
 
 ## Critérios de desempate
 
@@ -106,17 +125,21 @@ Considere dois processos prontos:
 | Processo | Previsão | Espera | Afinidade E/S | Prioridade |
 |---|---:|---:|---:|---:|
 | P1 | 6 | 2 | 0,25 | 1 |
-| P2 | 4 | 0 | 0,50 | 3 |
+| P2 | 4 | 4 | 0,50 | 3 |
 
 As pontuações são:
 
 ```text
-P1 = 6 - 2 - 3*0,25 + 0,5*1 = 3,75
-P2 = 4 - 0 - 3*0,50 + 0,5*3 = 4,00
+previsao_norm: P1 = 1,00; P2 = 0,00
+espera_norm:   P1 = 0,50; P2 = 1,00
+prioridade_norm: P1 = 0,00; P2 = 1,00
+
+P1 = 0,40*1,00 - 0,30*0,50 - 0,20*0,25 + 0,10*0,00 = 0,20
+P2 = 0,40*0,00 - 0,30*1,00 - 0,20*0,50 + 0,10*1,00 = -0,30
 ```
 
-O EPA escolhe P1. Embora sua rajada prevista seja maior, o tempo de espera e a
-prioridade compensam essa diferença.
+O EPA escolhe P2, que possui o menor score. A espera e a afinidade com E/S
+compensam sua prioridade estática menos favorável.
 
 ## Comparação com os algoritmos clássicos
 
@@ -135,9 +158,10 @@ a mesma alternância imediata entre processos prontos.
 ## Complexidade
 
 A fila de prontos é representada pelo conjunto de PCBs no estado `READY`. Cada
-decisão percorre os `n` processos uma vez, portanto a escolha tem custo
-`O(n)` e usa memória auxiliar `O(1)`. O histórico persistente ocupa quatro
-campos por processo, totalizando `O(n)`.
+decisão percorre os `n` processos duas vezes: a primeira obtém os limites de
+normalização e a segunda calcula os scores. A escolha continua com custo
+`O(n)` e memória auxiliar `O(1)`. O histórico persistente ocupa quatro campos
+por processo, totalizando `O(n)`.
 
 ## Limitações
 
@@ -149,8 +173,10 @@ campos por processo, totalizando `O(n)`.
   dispositivo.
 - Por ser não preemptivo, um processo não pode interromper uma rajada longa que
   já esteja em execução.
-- O envelhecimento reduz o risco de inanição na fila, mas não limita a duração
-  da rajada que ocupa a CPU.
+- A espera normalizada reduz o risco de inanição, mas não oferece uma garantia
+  matemática de tempo máximo de espera.
+- A normalização depende do conjunto de processos prontos em cada decisão; por
+  isso, a pontuação de um processo pode mudar com a entrada de concorrentes.
 
 ## Implementação e avaliação
 
@@ -159,6 +185,6 @@ ocorre em `src/simulator.c`, somente depois que cada informação se torna
 observável. O teste determinístico está em `tests/test_schedulers.c`.
 
 O executor `src/experiment.c` avalia o EPA com as mesmas cargas usadas pelos
-algoritmos clássicos. Os resultados consolidados e os intervalos de confiança
-estão em `resultados/`, e a metodologia estatística está descrita em
-`docs/metodologia_experimental.md`.
+algoritmos clássicos. A metodologia estatística está descrita em
+`docs/metodologia_experimental.md`. Os artefatos em `resultados/` devem ser
+regenerados após alterações na fórmula ou nos pesos.
