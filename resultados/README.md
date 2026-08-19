@@ -1,9 +1,10 @@
 # Estado dos resultados
 
-Os arquivos deste diretório foram produzidos com a versão anterior do EPA, que
-usava o tempo de espera bruto no score. Eles foram preservados como registro da
-execução, mas não representam a implementação atual, cujos critérios são
-normalizados.
+Os arquivos deste diretório correspondem ao EPA com critérios normalizados.
+Foram usados 1.000 processos, 100 seeds, quantum 4 e custo de troca de contexto
+1 nos quatro cenários do projeto.
 
-Antes da comparação final e da atualização do artigo, execute novamente o fluxo
-descrito no README da raiz para substituir os CSVs, a análise e os gráficos.
+Os CSVs consolidados, a análise comparativa e os gráficos foram regenerados a
+partir da mesma execução. Os dados brutos permanecem em `dados/`, fora do Git
+por causa do tamanho, e podem ser recriados pelo fluxo descrito no README da
+raiz.

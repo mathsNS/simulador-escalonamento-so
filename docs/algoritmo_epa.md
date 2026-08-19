@@ -186,5 +186,5 @@ observável. O teste determinístico está em `tests/test_schedulers.c`.
 
 O executor `src/experiment.c` avalia o EPA com as mesmas cargas usadas pelos
 algoritmos clássicos. A metodologia estatística está descrita em
-`docs/metodologia_experimental.md`. Os artefatos em `resultados/` devem ser
-regenerados após alterações na fórmula ou nos pesos.
+`docs/metodologia_experimental.md`. Os artefatos atuais em `resultados/` foram
+gerados com a fórmula normalizada descrita neste documento.

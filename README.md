@@ -150,8 +150,8 @@ custo de troca e tamanho da carga.
 
 ## Documentação e resultados
 
-> Os resultados atualmente versionados foram gerados antes da normalização dos
-> critérios do EPA. Eles devem ser regenerados antes da comparação final.
+Os resultados versionados correspondem ao EPA com critérios normalizados e à
+configuração de 1.000 processos e 100 seeds descrita na metodologia.
 
 - [Descrição completa do EPA](docs/algoritmo_epa.md)
 - [Metodologia experimental](docs/metodologia_experimental.md)
