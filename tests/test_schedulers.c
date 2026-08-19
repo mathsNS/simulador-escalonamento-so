@@ -1,4 +1,4 @@
-#include "simulator.h"
+#include "scheduler_internal.h"
 
 #include <assert.h>
 #include <stdio.h>
@@ -76,6 +76,69 @@ static void test_epa_non_preemptive_and_tie_break(void) {
     expect_timeline(SCHED_EPA, 1, p, 2, expected, 14);
 }
 
+static PCB epa_process(int id, int priority, double prediction,
+                       long long waiting, unsigned long long ready_order) {
+    PCB process = {0};
+    process.spec.id = id;
+    process.spec.priority = priority;
+    process.state = PROCESS_READY;
+    process.epa_predicted_burst = prediction;
+    process.epa_waiting_ticks = waiting;
+    process.ready_order = ready_order;
+    return process;
+}
+
+static void test_epa_waiting_is_bounded(void) {
+    PCB p[] = {
+        epa_process(1, 1, 4.0, 1, 1),
+        epa_process(2, 1, 20.0, 100000, 2)
+    };
+    assert(scheduler_choose_epa(p, 2) == 0);
+}
+
+static void test_epa_waiting_scale_invariance(void) {
+    PCB small[] = {
+        epa_process(1, 1, 5.0, 10, 1),
+        epa_process(2, 1, 5.0, 20, 2)
+    };
+    PCB large[] = {
+        epa_process(1, 1, 5.0, 1000, 1),
+        epa_process(2, 1, 5.0, 2000, 2)
+    };
+    assert(scheduler_choose_epa(small, 2) == 1);
+    assert(scheduler_choose_epa(large, 2) == 1);
+}
+
+static void test_epa_uses_io_affinity_and_priority(void) {
+    PCB io[] = {
+        epa_process(1, 1, 5.0, 0, 1),
+        epa_process(2, 1, 5.0, 0, 2)
+    };
+    PCB priority[] = {
+        epa_process(1, 5, 5.0, 0, 1),
+        epa_process(2, 1, 5.0, 0, 2)
+    };
+    io[1].epa_observed_cpu_time = 2;
+    io[1].epa_observed_io_time = 8;
+    assert(scheduler_choose_epa(io, 2) == 1);
+    assert(scheduler_choose_epa(priority, 2) == 1);
+}
+
+static void test_epa_ready_filter_and_tie_break(void) {
+    PCB p[] = {
+        epa_process(3, 1, 5.0, 0, 2),
+        epa_process(2, 1, 5.0, 0, 1),
+        epa_process(1, 1, 5.0, 0, 1)
+    };
+    assert(scheduler_choose_epa(p, 3) == 2);
+    p[2].state = PROCESS_BLOCKED;
+    assert(scheduler_choose_epa(p, 3) == 1);
+    p[1].state = PROCESS_BLOCKED;
+    assert(scheduler_choose_epa(p, 3) == 0);
+    p[0].state = PROCESS_BLOCKED;
+    assert(scheduler_choose_epa(p, 3) == -1);
+}
+
 static void test_invalid_quantum(void) {
     const int burst[] = {1};
     const ProcessSpec p = {1, 0, 1, burst, 1};
@@ -99,6 +162,11 @@ int main(void) {
     test_context_switch_cost();
     puts("EPA: nao preemptivo e empate inicial"); fflush(stdout);
     test_epa_non_preemptive_and_tie_break();
+    puts("EPA: normalizacao e criterios"); fflush(stdout);
+    test_epa_waiting_is_bounded();
+    test_epa_waiting_scale_invariance();
+    test_epa_uses_io_affinity_and_priority();
+    test_epa_ready_filter_and_tie_break();
     puts("Validacao de quantum"); fflush(stdout);
     test_invalid_quantum();
     puts("Todos os testes passaram.");
