@@ -37,11 +37,29 @@ static int validate(const ProcessSpec *specs, size_t count,
     return 0;
 }
 
+/*
+ * Fila de prontos: não existe um vetor/lista separado para ela. É o
+ * conjunto implícito de todos os PCBs com state == PROCESS_READY, e cada
+ * um guarda em ready_order o instante (contador monotônico) em que entrou
+ * nesse estado. Os escalonadores (scheduler_choose_*) varrem os PCBs e
+ * consideram apenas os que estão READY; ready_order dá a ordem FIFO usada
+ * por FCFS/Round Robin e como critério de desempate na Prioridade.
+ * Assim, por definição, só processos aptos a usar a CPU (READY) disputam
+ * o próximo turno; NEW e BLOCKED nunca são escolhidos.
+ */
 static void make_ready(PCB *process, unsigned long long *order) {
     process->state = PROCESS_READY;
     process->ready_order = (*order)++;
 }
 
+/*
+ * Transições que devolvem um processo a fila de prontos (-> READY):
+ *   - NEW -> READY quando o tempo de chegada é alcancado;
+ *   - BLOCKED -> READY quando sua requisição de E/S termina (unblock_time).
+ * Chegadas são aplicadas antes de conclusões de E/S no mesmo instante; a
+ * ordem entre elas segue o vetor da carga, o que define o desempate em
+ * ready_order quando vários eventos coincidem em t.
+ */
 static void admit_events(PCB *processes, size_t count, int time,
                          unsigned long long *order) {
     size_t i;
@@ -109,6 +127,20 @@ int simulator_run(const ProcessSpec *specs, size_t count,
                 last_pid = SIM_IDLE;
                 continue;
             }
+            /*
+             * Troca de contexto:
+             *   - Quando ocorre: apenas quando a CPU passa diretamente de um
+             *     PID para outro PID diferente (last_pid != SIM_IDLE evita
+             *     contar a primeira execução e a retomada após ociosidade).
+             *   - Duração: config->context_switch_cost unidades de tempo,
+             *     configurável e igual para todos os algoritmos comparados
+             *     num mesmo experimento.
+             *   - Disponibilidade da CPU: indisponível durante o custo -
+             *     nenhum processo executa nesse intervalo (a linha do tempo
+             *     registra SIM_CONTEXT_SWITCH), mas o relógio avança e
+             *     admit_events() continua processando chegadas/retornos de
+             *     E/S normalmente.
+             */
             if (last_pid != SIM_IDLE && last_pid != processes[next].spec.id) {
                 int c;
                 ++result->context_switches;
@@ -135,6 +167,25 @@ int simulator_run(const ProcessSpec *specs, size_t count,
         last_pid = processes[running].spec.id;
 
         if (processes[running].remaining == 0) {
+            /*
+             * Transição RUNNING -> E/S ou -> FINISHED: a rajada de CPU
+             * atual acabou de esgotar (remaining chegou a 0).
+             *
+             * Lógica de bloqueio por E/S (não há estrutura de dispositivo
+             * físico no modelo):
+             *   - Quando ocorre: exatamente aqui, ao final de uma rajada de 
+             *     CPU que não é a ultima do processo.
+             *   - Duração: pela duracao da proxima rajada em
+             *     spec.bursts (bursts[burst_index], índice ímpar).
+             *   - Paralelismo: cada processo bloqueia de forma
+             *     independente; não há fila de dispositivo nem limite de
+             *     E/S simultâneas, ou seja, o modelo equivale a um
+             *     dispositivo dedicado (sem contenção) por processo.
+             *   - Retorno a fila de prontos: agendado para
+             *     unblock_time = time + io_duration e efetivado em
+             *     admit_events() quando o relógio alcanca esse instante
+             *     (BLOCKED -> READY).
+             */
             PCB *p = &processes[running];
             ++p->burst_index;
             if (p->burst_index == p->spec.burst_count) {
