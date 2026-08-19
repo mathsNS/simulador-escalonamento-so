@@ -68,15 +68,7 @@ static void test_context_switch_cost(void) {
     simulator_result_destroy(&result);
 }
 
-/* EPA (Escalonador Preditivo Adaptativo) - algoritmo próprio da equipe,
-   ver src/scheduler_epa.c. P1 e P2 chegam juntos com a mesma prioridade e
-   nenhum histórico; empatam e P1 é escolhido por ready_order (menor índice
-   na carga). Como o EPA só decide quando a CPU fica livre, P2 (rajada única
-   de 10) executa até o fim sem ser interrompido mesmo enquanto P1 envelhece
-   esperando - isso ilustra deliberadamente a natureza não preemptiva do
-   algoritmo (ver limitações documentadas em scheduler_epa.c). P1 retoma ao
-   final para sua última rajada de CPU (2), após a E/S intermediária (1) já
-   ter sido cumprida enquanto P2 executava. */
+/* Sem histórico, o EPA desempata por ready_order e não interrompe rajadas. */
 static void test_epa_non_preemptive_and_tie_break(void) {
     const int a[] = {2, 1, 2}; const int b[] = {10};
     const ProcessSpec p[] = {{1, 0, 1, a, 3}, {2, 0, 1, b, 1}};

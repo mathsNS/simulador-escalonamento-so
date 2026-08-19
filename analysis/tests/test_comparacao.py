@@ -3,7 +3,6 @@ import unittest
 from pathlib import Path
 
 
-# Importa o script diretamente da pasta analysis.
 SPEC = importlib.util.spec_from_file_location(
     "comparar_resultados", Path(__file__).parents[1] / "comparar_resultados.py"
 )
@@ -20,11 +19,9 @@ class ComparisonTests(unittest.TestCase):
         self.assertFalse(comparar.intervals_overlap(first, third))
 
     def test_advantage_for_lower_is_better(self):
-        # EPA=90 contra clássico=100 representa vantagem de 10%.
         self.assertAlmostEqual(comparar.relative_advantage(90, 100, "min"), 10)
 
     def test_advantage_for_higher_is_better(self):
-        # EPA=90 contra clássico=80 representa vantagem de 12,5%.
         self.assertAlmostEqual(comparar.relative_advantage(90, 80, "max"), 12.5)
 
     def test_tied_algorithms_are_reported_together(self):

@@ -1,7 +1,7 @@
 # Simulador de escalonamento de processos
 
-Simulador discreto em C dos algoritmos clássicos FCFS, Round Robin e prioridade
-não preemptiva, além do algoritmo próprio da equipe (EPA). Os processos são
+Simulador discreto em C dos algoritmos FCFS, Round Robin, prioridade não
+preemptiva e EPA. Os processos são
 descritos por rajadas alternadas `CPU, E/S, CPU, ..., CPU`.
 
 ## Compilação e execução
@@ -41,22 +41,18 @@ cenário" sempre produza exatamente a mesma carga.
 - **Modelo escolhido: intervalos aleatórios (processo de Poisson).** Os
   intervalos entre chegadas consecutivas seguem uma distribuição exponencial
   de média configurável (`mean_interarrival`), amostrada por transformada
-  inversa: `intervalo = -media * ln(U)`, com `U` uniforme em `(0, 1)`. Foi
-  preferido a intervalos fixos e a "tudo no instante 0" por ser o modelo mais
-  realista e usual na literatura de escalonamento, evitando tanto a rigidez
-  de chegadas periódicas quanto a ausência de fila inicial.
+  inversa: `intervalo = -media * ln(U)`, com `U` uniforme em `(0, 1)`.
 - Chegadas são não decrescentes e começam em `t >= 0`; a série é determinística
   para uma dada seed (`generate_arrivals`, testado em `tests/test_workload.c`).
 - **Caso especial:** `mean_interarrival == 0` faz todos os processos chegarem no
-  instante 0 (lote único) - suportado pela função, mas só deve ser usado como
-  cenário complementar, com a limitação discutida no relatório.
+  instante 0.
 
 ## Geração de cargas controlada por seed (reprodutibilidade)
 
 `workload_generate(seed, params, &workload)` (`include/workload.h`) gera a
 carga completa - ID, prioridade, rajadas de CPU/E-S e tempo de chegada de
 cada processo - a partir de uma seed e de faixas de parâmetros
-(`WorkloadParams`): **mesma seed + mesmos parâmetros ⇒ sempre a mesma carga**, em qualquer máquina.
+(`WorkloadParams`): **mesma seed + mesmos parâmetros ⇒ mesma carga**.
 
 - **Determinismo:** não depende de `rand()`/`srand()` (estado global da
   libc); usa dois fluxos do gerador `Rng` próprio, derivados da seed por XOR
@@ -188,11 +184,9 @@ O resultado expõe chegada, conclusão, CPU e E/S totais por processo, além do
 número de trocas. Isso permite calcular turnaround, slowdown e índice de Jain
 sem duplicar a lógica do simulador.
 
-## EPA - Escalonador Preditivo Adaptativo (algoritmo próprio da equipe)
+## EPA - Escalonador Preditivo Adaptativo
 
-Implementado em `src/scheduler_epa.c` (documentação detalhada nos comentários
-do arquivo: problema que resolve, dados que usa, formula de decisão e
-limitações conhecidas). Resumo:
+O EPA combina previsão de rajada, envelhecimento e afinidade com E/S:
 
 - Não preemptivo por rajada, como FCFS e prioridade: só decide quando a CPU
   fica livre.
@@ -201,8 +195,7 @@ limitações conhecidas). Resumo:
   `spec.bursts` além do que já aconteceu).
 - Usa envelhecimento por tempo real de espera para garantir espera limitada
   (sem inanição indefinida), diferente da prioridade estática clássica.
-- Dá um bônus leve a processos historicamente mais ligados a E/S, para manter
-  dispositivos ocupados e reduzir o slowdown de processos interativos.
+- Dá um bônus leve a processos com maior proporção de E/S observada.
 - A prioridade estática da carga entra apenas como desempate suave.
 
 Os pesos atuais do EPA (`EPA_AGING_WEIGHT`, `EPA_IO_WEIGHT` e
@@ -235,4 +228,5 @@ python analysis/comparar_resultados.py --resumo resultados/resumo_ic95.csv
 
 `make test` executa os testes em C e os testes Python das métricas e da análise
 comparativa. A configuração usada nos resultados versionados também está em
-`resultados/configuracao_experimental.csv`.
+`resultados/configuracao_experimental.csv`. As fórmulas e o protocolo estão em
+`docs/metodologia_experimental.md`.

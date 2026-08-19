@@ -95,13 +95,7 @@ int workload_generate(unsigned long long seed, const WorkloadParams *params,
     if (validate_params(params) != 0)
         return -1;
 
-    /*
-     * Dois fluxos de aleatoriedade independentes, derivados da mesma seed
-     * por XOR com constantes distintas: um para a estrutura do processo
-     * (prioridade, número e duração das rajadas) e outro para os tempos de
-     * chegada. Isso garante "mesma seed => mesma carga" mesmo se a ordem de
-     * geração de um dos dois for alterada no futuro.
-     */
+    /* Fluxos separados evitam que a geração das chegadas altere as rajadas. */
     rng_seed(&rng_struct, seed ^ 0xA5A5A5A5A5A5A5A5ULL);
     rng_seed(&rng_arrival, seed ^ 0x5A5A5A5A5A5A5A5AULL);
 
@@ -111,8 +105,7 @@ int workload_generate(unsigned long long seed, const WorkloadParams *params,
     if (!io_counts || !arrivals || !out->processes)
         goto fail;
 
-    /* Passo 1: número de requisições de E/S de cada processo, para saber o
-     * tamanho total do armazenamento de rajadas antes de alocá-lo. */
+    /* Calcula o tamanho do bloco único que armazenará todas as rajadas. */
     for (i = 0; i < params->process_count; ++i) {
         int io_count = rng_uniform_int(&rng_struct, params->min_io_count,
                                        params->max_io_count);
@@ -124,8 +117,7 @@ int workload_generate(unsigned long long seed, const WorkloadParams *params,
     if (!out->bursts_storage)
         goto fail;
 
-    /* Passo 2: prioridade e durações de rajada (CPU, E/S, CPU, ...),
-     * continuando o mesmo fluxo de aleatoriedade do passo 1. */
+    /* Preenche o bloco de rajadas e associa cada processo à sua faixa. */
     for (i = 0; i < params->process_count; ++i) {
         size_t burst_count = 2 * io_counts[i] + 1;
         int *bursts = out->bursts_storage + offset;
@@ -141,7 +133,6 @@ int workload_generate(unsigned long long seed, const WorkloadParams *params,
         offset += burst_count;
     }
 
-    /* Tempos de chegada: fluxo próprio, independente do de estrutura. */
     generate_arrivals(&rng_arrival, params->process_count,
                       params->mean_interarrival, arrivals);
     for (i = 0; i < params->process_count; ++i)

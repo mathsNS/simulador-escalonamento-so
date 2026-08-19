@@ -208,11 +208,3 @@ O resultado favorável é o maior. O melhor resultado geral foi de **round_robin
 | prioridades_desbalanceadas | Trocas de contexto | epa / fcfs | fcfs | 0.00% | sim |
 | prioridades_desbalanceadas | Slowdown médio | epa | fcfs | 0.01% | sim |
 | prioridades_desbalanceadas | Jain do slowdown | round_robin | round_robin | -46.79% | não |
-
-## Orientação para a discussão
-
-- Relacione turnaround e slowdown: uma melhora global pode não beneficiar todos os tipos de processo da mesma forma.
-- Interprete Jain junto com turnaround: justiça alta também pode ocorrer quando todos os processos são prejudicados de maneira semelhante.
-- Relacione as trocas ao custo configurado; um número maior representa mais tempo sem execução útil da CPU.
-- Para o EPA, discuta previsão de rajada, envelhecimento, afinidade de E/S e prioridade apenas quando os resultados observados forem compatíveis.
-- Não use a sobreposição dos IC95% como prova formal de igualdade ou diferença.

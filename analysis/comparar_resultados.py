@@ -1,10 +1,5 @@
 #!/usr/bin/env python3
-"""Gera tabelas e texto comparativo a partir do resumo com IC95%.
-
-O script não inventa explicações causais. Ele identifica rankings, diferenças
-percentuais e sobreposição dos intervalos de confiança. O relatório resultante
-serve como base verificável para a seção de resultados e discussão do artigo.
-"""
+"""Gera tabelas comparativas a partir do resumo com IC95%."""
 
 from __future__ import annotations
 
@@ -249,21 +244,7 @@ def write_markdown(path: Path, rows: list[dict], comparisons: list[dict]) -> Non
             f"{item['ic95_sobrepoe_melhor_classico']} |"
         )
 
-    lines.extend([
-        "",
-        "## Orientação para a discussão",
-        "",
-        "- Relacione turnaround e slowdown: uma melhora global pode não beneficiar "
-        "todos os tipos de processo da mesma forma.",
-        "- Interprete Jain junto com turnaround: justiça alta também pode ocorrer "
-        "quando todos os processos são prejudicados de maneira semelhante.",
-        "- Relacione as trocas ao custo configurado; um número maior representa "
-        "mais tempo sem execução útil da CPU.",
-        "- Para o EPA, discuta previsão de rajada, envelhecimento, afinidade de E/S "
-        "e prioridade apenas quando os resultados observados forem compatíveis.",
-        "- Não use a sobreposição dos IC95% como prova formal de igualdade ou diferença.",
-        "",
-    ])
+    lines.append("")
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text("\n".join(lines), encoding="utf-8")
 

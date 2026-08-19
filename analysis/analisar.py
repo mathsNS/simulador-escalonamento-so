@@ -18,17 +18,14 @@ import statistics
 from collections import defaultdict
 from pathlib import Path
 
-# Colunas obrigatórias do arquivo que possui uma linha por processo.
 PROCESS_COLUMNS = {
     "seed", "cenario", "algoritmo", "pid", "chegada", "termino", "cpu_total", "io_total"
 }
-# Colunas obrigatórias do arquivo que possui uma linha por execução.
 RUN_COLUMNS = {
     "seed", "cenario", "algoritmo", "num_processos", "total_seeds",
     "quantum", "custo_troca", "trocas_contexto",
 }
 
-# Campos que identificam unicamente uma execução experimental.
 KEY = ("seed", "cenario", "algoritmo")
 
 
@@ -73,12 +70,10 @@ def calculate(process_rows: list[dict[str, str]], run_rows: list[dict[str, str]]
     - resumo de cada execução/seed, incluindo o índice de Jain.
     """
     detailed = []
-    # Agrupa os processos que pertencem à mesma execução experimental.
     grouped: dict[tuple[str, str, str], list[dict]] = defaultdict(list)
     seen_processes = set()
 
     for raw in process_rows:
-        # A combinação abaixo não pode aparecer duas vezes para o mesmo PID.
         key = tuple(raw[name].strip() for name in KEY)
         process_id = (*key, raw["pid"].strip())
         if process_id in seen_processes:
@@ -88,18 +83,15 @@ def calculate(process_rows: list[dict[str, str]], run_rows: list[dict[str, str]]
         termino = float(raw["termino"])
         cpu = float(raw["cpu_total"])
         io = float(raw["io_total"])
-        # Turnaround: tempo total entre a chegada e o término do processo.
         turnaround = termino - chegada
 
-        # Tempo mínimo ideal: processo sem espera na fila de prontos.
-        # O custo de troca de contexto não é somado aqui.
+        # O tempo ideal não inclui espera nem troca de contexto.
         ideal = cpu + io
         if chegada < 0 or termino < chegada or cpu <= 0 or io < 0 or ideal <= 0:
             raise ValueError(f"tempos inválidos no processo {process_id}")
         item = {
             "seed": key[0], "cenario": key[1], "algoritmo": key[2], "pid": raw["pid"],
             "chegada": chegada, "termino": termino, "cpu_total": cpu, "io_total": io,
-            # Slowdown compara o turnaround observado com o tempo mínimo ideal.
             "turnaround": turnaround, "tempo_ideal": ideal, "slowdown": turnaround / ideal,
         }
         if item["slowdown"] < 1.0 - 1e-9:
@@ -107,8 +99,7 @@ def calculate(process_rows: list[dict[str, str]], run_rows: list[dict[str, str]]
         detailed.append(item)
         grouped[key].append(item)
 
-    # As trocas de contexto são uma propriedade da execução inteira, não de um
-    # processo. Por isso vêm no segundo CSV e são associadas pela chave KEY.
+    # Trocas de contexto são associadas à execução, não a um processo.
     runs = {}
     for raw in run_rows:
         key = tuple(raw[name].strip() for name in KEY)
@@ -126,7 +117,6 @@ def calculate(process_rows: list[dict[str, str]], run_rows: list[dict[str, str]]
                 metadata["trocas_contexto"] < 0):
             raise ValueError(f"configuração de execução inválida: {key}")
         runs[key] = metadata
-    # Toda execução presente em um CSV precisa estar presente no outro.
     if set(grouped) != set(runs):
         missing_runs = sorted(set(grouped) - set(runs))
         missing_processes = sorted(set(runs) - set(grouped))
@@ -134,7 +124,6 @@ def calculate(process_rows: list[dict[str, str]], run_rows: list[dict[str, str]]
             f"chaves incompatíveis; sem execução={missing_runs}; sem processos={missing_processes}"
         )
 
-    # Consolida as informações dos processos dentro de cada execução/seed.
     per_run = []
     for key in sorted(grouped):
         items = grouped[key]
@@ -218,7 +207,6 @@ def make_svg(rows: list[dict], metric: str, output: Path) -> None:
     width, height = 1100, 620
     left, right, top, bottom = 100, 30, 70, 150
     plot_w, plot_h = width - left - right, height - top - bottom
-    # O maior limite superior determina a escala do eixo vertical.
     maximum = max(float(row["ic95_superior"]) for row in selected) or 1.0
     colors = ["#2563eb", "#dc2626", "#16a34a", "#9333ea", "#ea580c", "#0891b2"]
     parts = [
@@ -228,7 +216,6 @@ def make_svg(rows: list[dict], metric: str, output: Path) -> None:
         f'<line x1="{left}" y1="{top}" x2="{left}" y2="{top+plot_h}" stroke="#111"/>',
         f'<line x1="{left}" y1="{top+plot_h}" x2="{left+plot_w}" y2="{top+plot_h}" stroke="#111"/>',
     ]
-    # Desenha seis marcas igualmente espaçadas no eixo vertical.
     for tick in range(6):
         value = maximum * tick / 5
         y = top + plot_h - plot_h * tick / 5
@@ -238,7 +225,6 @@ def make_svg(rows: list[dict], metric: str, output: Path) -> None:
         ])
     group_w = plot_w / max(1, len(scenarios))
     bar_w = min(34, group_w / (len(algorithms) + 1))
-    # Desenha um ponto e uma barra de erro para cada algoritmo/cenário.
     for si, scenario in enumerate(scenarios):
         center = left + group_w * (si + 0.5)
         parts.append(f'<text x="{center:.1f}" y="{top+plot_h+28}" text-anchor="middle" font-family="Arial" font-size="12">{svg_escape(scenario)}</text>')
@@ -260,7 +246,6 @@ def make_svg(rows: list[dict], metric: str, output: Path) -> None:
                 f'<line x1="{x-5:.1f}" y1="{y_high:.1f}" x2="{x+5:.1f}" y2="{y_high:.1f}" stroke="{color}"/>',
                 f'<line x1="{x-5:.1f}" y1="{y_low:.1f}" x2="{x+5:.1f}" y2="{y_low:.1f}" stroke="{color}"/>',
             ])
-    # Legenda das cores utilizadas para os algoritmos.
     legend_y = height - 70
     for ai, algorithm in enumerate(algorithms):
         x = left + ai * 190
@@ -283,17 +268,11 @@ def main() -> None:
     args = parser.parse_args()
     process_rows = read_csv(args.processos, PROCESS_COLUMNS)
     run_rows = read_csv(args.execucoes, RUN_COLUMNS)
-    # Etapa 1: métricas individuais e métricas de cada execução.
     detailed, per_run = calculate(process_rows, run_rows)
-
-    # Etapa 2: agregação das execuções independentes (seeds).
     summary = summarize(per_run)
-
-    # Etapa 3: grava tabelas que permitem reproduzir a análise.
     write_csv(args.saida / "metricas_processos.csv", list(detailed[0]), detailed)
     write_csv(args.saida / "metricas_execucoes.csv", list(per_run[0]), per_run)
     write_csv(args.saida / "resumo_ic95.csv", list(summary[0]), summary)
-    # Etapa 4: gera um gráfico com IC95% para cada métrica avaliada.
     for metric in ("turnaround_medio", "trocas_contexto", "slowdown_medio", "jain_slowdown_pct"):
         make_svg(summary, metric, args.saida / "graficos" / f"{metric}.svg")
     print(f"Análise concluída: {len(per_run)} execuções, {len(detailed)} processos.")

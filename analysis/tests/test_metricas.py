@@ -3,9 +3,6 @@ import math
 import unittest
 from pathlib import Path
 
-# Importa diretamente o script que está sendo testado, sem exigir que a pasta
-# scripts seja instalada como um pacote Python.
-# O arquivo de teste está em analysis/tests; o analisador está um nível acima.
 SPEC = importlib.util.spec_from_file_location(
     "analisar", Path(__file__).parents[1] / "analisar.py"
 )
@@ -15,11 +12,9 @@ SPEC.loader.exec_module(analisar)
 
 class MetricTests(unittest.TestCase):
     def test_jain_identical_values_is_100(self):
-        # Slowdowns idênticos representam igualdade perfeita.
         self.assertAlmostEqual(analisar.jain([2.0, 2.0, 2.0]), 100.0)
 
     def test_process_and_run_metrics(self):
-        # Dois processos com slowdown 2 devem produzir Jain igual a 100%.
         processes = [
             {"seed": "1", "cenario": "x", "algoritmo": "a", "pid": "1", "chegada": "0", "termino": "10", "cpu_total": "5", "io_total": "0"},
             {"seed": "1", "cenario": "x", "algoritmo": "a", "pid": "2", "chegada": "2", "termino": "14", "cpu_total": "4", "io_total": "2"},

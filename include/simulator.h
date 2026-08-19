@@ -19,36 +19,27 @@
  * disputam a CPU.
  */
 typedef enum {
-    PROCESS_NEW,       /* Ainda não chegou (tempo atual < arrival_time). */
-    PROCESS_READY,     /* Apto a usar a CPU, aguardando na fila de prontos. */
-    PROCESS_RUNNING,   /* Em posse da CPU. */
-    PROCESS_BLOCKED,   /* Aguardando conclusão de uma requisição de E/S. */
-    PROCESS_FINISHED   /* Todas as rajadas (CPU e E/S) já concluídas. */
+    PROCESS_NEW,
+    PROCESS_READY,
+    PROCESS_RUNNING,
+    PROCESS_BLOCKED,
+    PROCESS_FINISHED
 } ProcessState;
 
 typedef enum {
     SCHED_FCFS,
     SCHED_ROUND_ROBIN,
     SCHED_PRIORITY,
-    SCHED_EPA /* Algoritmo próprio da equipe: ver scheduler_epa.c. */
+    SCHED_EPA
 } SchedulerAlgorithm;
 
-/*
- * Descrição estática de um processo, gerada pela carga de trabalho.
- * Junto com o estado dinâmico, forma o modelo de processo: id, tempo de
- * chegada, prioridade, rajadas de CPU/E-S e estado atual.
- */
 typedef struct {
-    int id; /* Identificador do processo. */
-    int arrival_time; /* Tempo de chegada. */
+    int id;
+    int arrival_time;
     int priority; /* Um valor menor representa prioridade maior. */
     /*
-     * Rajadas alternadas CPU -> E/S -> CPU -> ... -> CPU (índice 0 é sempre
-     * CPU e o vetor sempre termina em CPU, então burst_count é ímpar).
-     * Índices pares (0, 2, 4, ...) são durações de rajada de CPU; índices
-     * ímpares (1, 3, 5, ...) são durações de requisição de E/S.
-     *
-     * O número de requisições de E/S do processo é burst_count / 2.
+     * Rajadas alternadas CPU -> E/S -> ... -> CPU. Os índices pares são
+     * rajadas de CPU; os ímpares são operações de E/S.
      */
     const int *bursts;
     size_t burst_count;
