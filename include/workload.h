@@ -3,6 +3,8 @@
 
 #include <stddef.h>
 
+#include "simulator.h"
+
 /*
  * Gerador pseudoaleatório determinístico (xorshift64*), com estado próprio
  * por instância. Não usa rand()/srand() da libc: assim, gerar vários
@@ -31,5 +33,48 @@ double rng_uniform01(Rng *rng);
  */
 void generate_arrivals(Rng *rng, size_t count, double mean_interarrival,
                        int *arrivals_out);
+
+/* Amostra inteira uniforme em [min, max] (ambos inclusive). */
+int rng_uniform_int(Rng *rng, int min, int max);
+
+/*
+ * Parâmetros da geração de carga. 
+ * Todas as faixas sao inclusivas nos dois extremos.
+ */
+typedef struct {
+    size_t process_count;
+    double mean_interarrival;   /* ver generate_arrivals(). */
+    int min_priority, max_priority;
+    int min_cpu_burst, max_cpu_burst; /* duração de cada rajada de CPU (> 0). */
+    int min_io_count, max_io_count;   /* requisições de E/S por processo (>= 0). */
+    int min_io_burst, max_io_burst;   /* duração de cada requisição de E/S (> 0). */
+} WorkloadParams;
+
+/*
+ * Carga de processos gerada por workload_generate(). Cada
+ * processes[i].bursts aponta para dentro de bursts_storage (um único bloco
+ * alocado para todas as rajadas de todos os processos); libera tudo de uma
+ * vez com workload_destroy().
+ */
+typedef struct {
+    ProcessSpec *processes;
+    int *bursts_storage;
+    size_t process_count;
+} Workload;
+
+/*
+ * Gera params->process_count processos deterministicamente a partir de
+ * seed: mesma seed + mesmos params sempre produzem a mesma carga. 
+ * IDs recebem 1..process_count. A ordem de amostragem por processo é: 
+ * número de requisições de E/S, durações das rajadas (CPU, E/S, CPU, ...) e
+ * prioridade; os tempos de chegada usam um fluxo de aleatoriedade próprio,
+ * independente desse.
+ *
+ * Retorna 0 em sucesso e -1 se os parametros forem inválidos ou a alocação
+ * falhar (nesse caso *out fica zerado).
+ */
+int workload_generate(unsigned long long seed, const WorkloadParams *params,
+                      Workload *out);
+void workload_destroy(Workload *workload);
 
 #endif
