@@ -267,7 +267,7 @@ def main() -> None:
     write_csv(args.tabela, comparisons)
     write_markdown(args.saida, rows, comparisons)
     print(f"Tabela comparativa: {args.tabela.resolve()}")
-    print(f"Relatório comparativo: {args.saida.resolve()}")
+    print(f"Relatorio comparativo: {args.saida.resolve()}")
 
 
 if __name__ == "__main__":

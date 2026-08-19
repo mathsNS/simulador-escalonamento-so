@@ -275,7 +275,7 @@ def main() -> None:
     write_csv(args.saida / "resumo_ic95.csv", list(summary[0]), summary)
     for metric in ("turnaround_medio", "trocas_contexto", "slowdown_medio", "jain_slowdown_pct"):
         make_svg(summary, metric, args.saida / "graficos" / f"{metric}.svg")
-    print(f"Análise concluída: {len(per_run)} execuções, {len(detailed)} processos.")
+    print(f"Analise concluida: {len(per_run)} execucoes, {len(detailed)} processos.")
     print(f"Resultados gravados em: {args.saida.resolve()}")
 
 
