@@ -84,13 +84,6 @@ static void test_epa_non_preemptive_and_tie_break(void) {
     expect_timeline(SCHED_EPA, 1, p, 2, expected, 14);
 }
 
-/* TODO(Abner): cobertura adicional do EPA - em especial o efeito do bônus de
-   afinidade de E/S e da garantia de espera limitada por envelhecimento em
-   cenários com 3+ processos - depende dos 4 cenários obrigatórios da Maria
-   e/ou do harness de métricas da equipe para comparação quantitativa
-   (turnaround médio, slowdown, índice de Jain) contra FCFS/RR/prioridade.
-   Ver observações de integração no topo desta seção e no README. */
-
 static void test_invalid_quantum(void) {
     const int burst[] = {1};
     const ProcessSpec p = {1, 0, 1, burst, 1};

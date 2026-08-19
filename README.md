@@ -205,27 +205,34 @@ limitações conhecidas). Resumo:
   dispositivos ocupados e reduzir o slowdown de processos interativos.
 - A prioridade estática da carga entra apenas como desempate suave.
 
-### Pontos de integração ainda em aberto (dependências de equipe)
+Os pesos atuais do EPA (`EPA_AGING_WEIGHT`, `EPA_IO_WEIGHT` e
+`EPA_PRIORITY_WEIGHT`) são constantes de compilação. O algoritmo possui teste
+determinístico e participa do executor dos quatro cenários obrigatórios.
 
-Estes pontos exigem coordenação com quem mantém o núcleo (Maria) e a
-interface comum dos algoritmos (Matheus) antes de serem finalizados:
+## Experimentos, métricas e gráficos
 
-1. **Pesos configuráveis pelo usuário.** Hoje os pesos do EPA
-   (`EPA_AGING_WEIGHT`, `EPA_IO_WEIGHT`, `EPA_PRIORITY_WEIGHT` em
-   `scheduler_epa.c`) são constantes de compilação, porque `ChooseProcess`
-   tem assinatura `(const RuntimeProcess *, size_t)` e não recebe
-   `SimulationConfig`. Tornar isso configurável exigiria estender essa
-   assinatura (mudança de baixo risco, mas que toca os 4 arquivos de
-   escalonador) - ver TODO em `scheduler_internal.h`.
-2. **Validação nos 4 cenários obrigatórios.** Ainda não há um teste de
-   integração do EPA num dos cenários formais do projeto (parte da Maria);
-   os testes atuais em `tests/test_schedulers.c` cobrem apenas casos
-   isolados e hand-verificados.
-3. **Comparação quantitativa.** Turnaround médio, slowdown e índice de Jain
-   do EPA frente aos clássicos dependem do harness de métricas/experimentos
-   (parte compartilhada da equipe) - o simulador já expõe os dados brutos
-   necessários (ver seção anterior), falta só o script de análise.
+Compile o executor experimental:
 
-Enquanto isso, o EPA já compila, roda (`./simulator epa`) e tem cobertura de
-teste básica (`make test`), podendo ser usado desde já nos 3 pontos acima
-assim que as partes correspondentes estiverem prontas.
+```sh
+make experiment
+```
+
+Execute a configuração mínima oficial (1.000 processos, 100 seeds, quantum 4
+e custo de troca 1):
+
+```sh
+./experiment dados/processos.csv dados/execucoes.csv 1000 100 4 1
+```
+
+O executor cria os diretórios de saída e registra em `execucoes.csv` o número
+de processos, o total de seeds, o quantum e o custo da troca. Para calcular as
+métricas, IC95% e gráficos:
+
+```sh
+python analysis/analisar.py --processos dados/processos.csv --execucoes dados/execucoes.csv --saida resultados
+python analysis/comparar_resultados.py --resumo resultados/resumo_ic95.csv
+```
+
+`make test` executa os testes em C e os testes Python das métricas e da análise
+comparativa. A configuração usada nos resultados versionados também está em
+`resultados/configuracao_experimental.csv`.

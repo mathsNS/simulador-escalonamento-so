@@ -26,7 +26,7 @@ O resultado favorável é o menor. O melhor resultado geral foi de **prioridade*
 | epa | 3495.68 | [3483.98; 3507.38] |
 | round_robin | 10483.44 | [10442.78; 10524.10] |
 
-O resultado favorável é o menor. O melhor resultado geral foi de **epa**. Em relação ao melhor clássico (**fcfs**), o EPA apresentou resultado igual. Os IC95% do EPA e desse clássico se sobrepõem.
+O resultado favorável é o menor. O melhor resultado geral foi de **epa / fcfs / prioridade**. Em relação ao melhor clássico (**fcfs / prioridade**), o EPA apresentou resultado igual. Os IC95% do EPA e desse clássico se sobrepõem.
 
 ### Slowdown médio
 
@@ -72,7 +72,7 @@ O resultado favorável é o menor. O melhor resultado geral foi de **prioridade*
 | prioridade | 6495.16 | [6483.46; 6506.86] |
 | epa | 6495.16 | [6483.46; 6506.86] |
 
-O resultado favorável é o menor. O melhor resultado geral foi de **epa**. Em relação ao melhor clássico (**fcfs**), o EPA apresentou resultado igual. Os IC95% do EPA e desse clássico se sobrepõem.
+O resultado favorável é o menor. O melhor resultado geral foi de **epa / fcfs / prioridade / round_robin**. Em relação ao melhor clássico (**fcfs / prioridade / round_robin**), o EPA apresentou resultado igual. Os IC95% do EPA e desse clássico se sobrepõem.
 
 ### Slowdown médio
 
@@ -94,7 +94,7 @@ O resultado favorável é o menor. O melhor resultado geral foi de **prioridade*
 | epa | 92.79 | [92.71; 92.87] |
 | prioridade | 65.35 | [65.16; 65.53] |
 
-O resultado favorável é o maior. O melhor resultado geral foi de **fcfs**. Em relação ao melhor clássico (**fcfs**), o EPA apresentou desvantagem de 0.02%. Os IC95% do EPA e desse clássico se sobrepõem.
+O resultado favorável é o maior. O melhor resultado geral foi de **fcfs / round_robin**. Em relação ao melhor clássico (**fcfs / round_robin**), o EPA apresentou desvantagem de 0.02%. Os IC95% do EPA e desse clássico se sobrepõem.
 
 ## Cenário: cpu_bound
 
@@ -118,7 +118,7 @@ O resultado favorável é o menor. O melhor resultado geral foi de **prioridade*
 | epa | 1497.89 | [1494.64; 1501.14] |
 | round_robin | 10829.24 | [10798.52; 10859.96] |
 
-O resultado favorável é o menor. O melhor resultado geral foi de **epa**. Em relação ao melhor clássico (**fcfs**), o EPA apresentou resultado igual. Os IC95% do EPA e desse clássico se sobrepõem.
+O resultado favorável é o menor. O melhor resultado geral foi de **epa / fcfs / prioridade**. Em relação ao melhor clássico (**fcfs / prioridade**), o EPA apresentou resultado igual. Os IC95% do EPA e desse clássico se sobrepõem.
 
 ### Slowdown médio
 
@@ -164,7 +164,7 @@ O resultado favorável é o menor. O melhor resultado geral foi de **prioridade*
 | prioridade | 3495.66 | [3483.96; 3507.36] |
 | round_robin | 10486.67 | [10446.81; 10526.53] |
 
-O resultado favorável é o menor. O melhor resultado geral foi de **epa**. Em relação ao melhor clássico (**fcfs**), o EPA apresentou resultado igual. Os IC95% do EPA e desse clássico se sobrepõem.
+O resultado favorável é o menor. O melhor resultado geral foi de **epa / fcfs**. Em relação ao melhor clássico (**fcfs**), o EPA apresentou resultado igual. Os IC95% do EPA e desse clássico se sobrepõem.
 
 ### Slowdown médio
 
@@ -193,19 +193,19 @@ O resultado favorável é o maior. O melhor resultado geral foi de **round_robin
 | Cenário | Métrica | Melhor geral | Melhor clássico | Vantagem do EPA | Sobreposição IC95% |
 |---|---|---|---|---:|---|
 | equilibrado | Turnaround médio | prioridade | prioridade | -22.21% | não |
-| equilibrado | Trocas de contexto | epa | fcfs | 0.00% | sim |
+| equilibrado | Trocas de contexto | epa / fcfs / prioridade | fcfs / prioridade | 0.00% | sim |
 | equilibrado | Slowdown médio | epa | fcfs | 0.01% | sim |
 | equilibrado | Jain do slowdown | round_robin | round_robin | -48.51% | não |
 | io_bound | Turnaround médio | prioridade | prioridade | -45.40% | não |
-| io_bound | Trocas de contexto | epa | fcfs | 0.00% | sim |
+| io_bound | Trocas de contexto | epa / fcfs / prioridade / round_robin | fcfs / prioridade / round_robin | 0.00% | sim |
 | io_bound | Slowdown médio | prioridade | prioridade | -37.88% | não |
-| io_bound | Jain do slowdown | fcfs | fcfs | -0.02% | sim |
+| io_bound | Jain do slowdown | fcfs / round_robin | fcfs / round_robin | -0.02% | sim |
 | cpu_bound | Turnaround médio | prioridade | prioridade | -11.53% | não |
-| cpu_bound | Trocas de contexto | epa | fcfs | 0.00% | sim |
+| cpu_bound | Trocas de contexto | epa / fcfs / prioridade | fcfs / prioridade | 0.00% | sim |
 | cpu_bound | Slowdown médio | epa | fcfs | 0.00% | sim |
 | cpu_bound | Jain do slowdown | round_robin | round_robin | -17.55% | não |
 | prioridades_desbalanceadas | Turnaround médio | prioridade | prioridade | -18.03% | não |
-| prioridades_desbalanceadas | Trocas de contexto | epa | fcfs | 0.00% | sim |
+| prioridades_desbalanceadas | Trocas de contexto | epa / fcfs | fcfs | 0.00% | sim |
 | prioridades_desbalanceadas | Slowdown médio | epa | fcfs | 0.01% | sim |
 | prioridades_desbalanceadas | Jain do slowdown | round_robin | round_robin | -46.79% | não |
 

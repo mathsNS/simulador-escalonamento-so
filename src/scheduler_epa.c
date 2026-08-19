@@ -3,7 +3,7 @@
 /*
  * EPA - Escalonador Preditivo Adaptativo
  * =======================================
- * Algoritmo próprio da equipe (parte do Abner). Não preemptivo por rajada:
+ * Algoritmo próprio da equipe. Não preemptivo por rajada:
  * assim como FCFS e prioridade, só decide quando a CPU fica livre (término
  * de rajada, bloqueio ou chegada em CPU ociosa); não interrompe um processo
  * em execução. Isso o mantém compatível com o núcleo atual (simulator.c) sem
@@ -107,8 +107,8 @@
  *     como 1 unidade de espera (ver comentário em epa_tick_waiting, em
  *     simulator.c); é uma aproximação de no máximo 1 tick, sem impacto na
  *     garantia de espera limitada.
- *   - Não há, ainda, um cenário dos 4 obrigatórios (parte da Maria) rodando
- *     este algoritmo em teste de integração - ver TODO em tests/test_schedulers.c.
+ *   - A avaliação quantitativa deve sempre usar as mesmas cargas e seeds dos
+ *     algoritmos clássicos, como faz o executor em experiment.c.
  */
 
 #define EPA_AGING_WEIGHT 1.0
