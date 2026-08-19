@@ -97,9 +97,9 @@ de um processo mais prioritário não interrompe uma rajada em andamento.
 ### EPA: Escalonador Preditivo Adaptativo
 
 O EPA é a política proposta no projeto. Ele combina previsão da próxima rajada,
-tempo de espera, afinidade com E/S e prioridade estática em uma pontuação com
-critérios normalizados. A decisão usa apenas informações já observadas e é não
-preemptiva por rajada.
+tempo de espera, afinidade com E/S e prioridade estática em uma pontuação
+ponderada. A decisão usa apenas informações já observadas e é não preemptiva
+por rajada.
 
 A documentação completa do EPA está em
 [docs/algoritmo_epa.md](docs/algoritmo_epa.md). O documento apresenta a fórmula,
@@ -150,8 +150,8 @@ custo de troca e tamanho da carga.
 
 ## Documentação e resultados
 
-Os resultados versionados correspondem ao EPA com critérios normalizados e à
-configuração de 1.000 processos e 100 seeds descrita na metodologia.
+Os resultados versionados correspondem à configuração de 1.000 processos e
+100 seeds descrita na metodologia.
 
 - [Descrição completa do EPA](docs/algoritmo_epa.md)
 - [Metodologia experimental](docs/metodologia_experimental.md)

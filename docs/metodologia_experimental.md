@@ -4,9 +4,8 @@ Os experimentos avaliam FCFS, Round Robin, Prioridade e EPA nos cenários
 equilibrado, I/O-bound, CPU-bound e prioridades desbalanceadas. Para cada
 cenário e seed, uma única carga é gerada e reutilizada pelos quatro algoritmos.
 Os resultados versionados usam 1.000 processos, 100 seeds, quantum 4 e custo de
-troca de contexto 1. O EPA utiliza critérios normalizados, com pesos `0,40` para
-previsão, `0,30` para espera, `0,20` para afinidade com E/S e `0,10` para
-prioridade.
+troca de contexto 1. Os pesos do EPA são `0,40` para previsão, `0,30` para
+espera, `0,20` para afinidade com E/S e `0,10` para prioridade.
 
 Cada seed representa uma repetição independente. As métricas são calculadas
 primeiro por execução e depois agregadas entre seeds; processos de uma mesma
