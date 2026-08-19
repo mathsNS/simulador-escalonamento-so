@@ -57,7 +57,21 @@ static int validate_params(const WorkloadParams *p) {
     if (p->max_io_count > 0 &&
         (p->min_io_burst < 1 || p->min_io_burst > p->max_io_burst))
         return -1;
+    if (p->high_priority_fraction < 0.0 || p->high_priority_fraction > 1.0)
+        return -1;
+    if (p->high_priority_fraction > 0.0 &&
+        (p->high_priority_boundary < p->min_priority ||
+         p->high_priority_boundary >= p->max_priority))
+        return -1;
     return 0;
+}
+
+static int sample_priority(Rng *rng, const WorkloadParams *p) {
+    if (p->high_priority_fraction <= 0.0)
+        return rng_uniform_int(rng, p->min_priority, p->max_priority);
+    if (rng_uniform01(rng) < p->high_priority_fraction)
+        return rng_uniform_int(rng, p->min_priority, p->high_priority_boundary);
+    return rng_uniform_int(rng, p->high_priority_boundary + 1, p->max_priority);
 }
 
 void workload_destroy(Workload *workload) {
@@ -121,8 +135,7 @@ int workload_generate(unsigned long long seed, const WorkloadParams *params,
                 : rng_uniform_int(&rng_struct, params->min_io_burst, params->max_io_burst);
 
         out->processes[i].id = (int)i + 1;
-        out->processes[i].priority = rng_uniform_int(&rng_struct, params->min_priority,
-                                                      params->max_priority);
+        out->processes[i].priority = sample_priority(&rng_struct, params);
         out->processes[i].bursts = bursts;
         out->processes[i].burst_count = burst_count;
         offset += burst_count;

@@ -48,6 +48,18 @@ typedef struct {
     int min_cpu_burst, max_cpu_burst; /* duração de cada rajada de CPU (> 0). */
     int min_io_count, max_io_count;   /* requisições de E/S por processo (>= 0). */
     int min_io_burst, max_io_burst;   /* duração de cada requisição de E/S (> 0). */
+    /*
+     * Distribuição de prioridade desbalanceada (opcional; 0 = desativado).
+     * Com high_priority_fraction > 0, cada processo tem essa probabilidade
+     * de receber prioridade uniforme em [min_priority, high_priority_boundary]
+     * (a fatia "alta prioridade", já que valores menores são mais
+     * prioritários) e a probabilidade complementar de receber prioridade
+     * uniforme em (high_priority_boundary, max_priority] ("baixa
+     * prioridade"). Com high_priority_fraction == 0 (padrão), a prioridade
+     * é uniforme em todo [min_priority, max_priority], sem desbalanceamento.
+     */
+    double high_priority_fraction;
+    int high_priority_boundary;
 } WorkloadParams;
 
 /*
@@ -64,11 +76,13 @@ typedef struct {
 
 /*
  * Gera params->process_count processos deterministicamente a partir de
- * seed: mesma seed + mesmos params sempre produzem a mesma carga. 
- * IDs recebem 1..process_count. A ordem de amostragem por processo é: 
+ * seed: mesma seed + mesmos params sempre produzem a mesma carga.
+ * IDs recebem 1..process_count. A ordem de amostragem por processo é:
  * número de requisições de E/S, durações das rajadas (CPU, E/S, CPU, ...) e
- * prioridade; os tempos de chegada usam um fluxo de aleatoriedade próprio,
- * independente desse.
+ * prioridade (quando high_priority_fraction > 0, um sorteio extra decide
+ * entre a fatia de alta ou baixa prioridade antes de amostrar o valor);
+ * os tempos de chegada usam um fluxo de aleatoriedade próprio, independente
+ * desse.
  *
  * Retorna 0 em sucesso e -1 se os parametros forem inválidos ou a alocação
  * falhar (nesse caso *out fica zerado).
