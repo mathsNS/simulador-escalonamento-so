@@ -1,0 +1,32 @@
+import importlib.util
+import unittest
+from pathlib import Path
+
+
+# Importa o script diretamente da pasta analysis.
+SPEC = importlib.util.spec_from_file_location(
+    "comparar_resultados", Path(__file__).parents[1] / "comparar_resultados.py"
+)
+comparar = importlib.util.module_from_spec(SPEC)
+SPEC.loader.exec_module(comparar)
+
+
+class ComparisonTests(unittest.TestCase):
+    def test_interval_overlap(self):
+        first = {"ic95_inferior": 10.0, "ic95_superior": 12.0}
+        second = {"ic95_inferior": 11.0, "ic95_superior": 13.0}
+        third = {"ic95_inferior": 13.1, "ic95_superior": 14.0}
+        self.assertTrue(comparar.intervals_overlap(first, second))
+        self.assertFalse(comparar.intervals_overlap(first, third))
+
+    def test_advantage_for_lower_is_better(self):
+        # EPA=90 contra clássico=100 representa vantagem de 10%.
+        self.assertAlmostEqual(comparar.relative_advantage(90, 100, "min"), 10)
+
+    def test_advantage_for_higher_is_better(self):
+        # EPA=90 contra clássico=80 representa vantagem de 12,5%.
+        self.assertAlmostEqual(comparar.relative_advantage(90, 80, "max"), 12.5)
+
+
+if __name__ == "__main__":
+    unittest.main()

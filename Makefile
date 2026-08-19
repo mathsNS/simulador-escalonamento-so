@@ -5,11 +5,17 @@ LDLIBS ?= -lm
 
 COMMON = src/simulator.c src/scheduler_fcfs.c src/scheduler_round_robin.c src/scheduler_priority.c src/scheduler_epa.c
 
-.PHONY: all test clean
+.PHONY: all test clean experiment
 all: simulator
 
 simulator: src/main.c $(COMMON) include/simulator.h include/scheduler_internal.h
 	$(CC) $(CPPFLAGS) $(CFLAGS) -o $@ src/main.c $(COMMON)
+
+experiment: src/experiment.c src/scenarios.c src/workload.c $(COMMON) \
+            include/scenarios.h include/workload.h include/simulator.h \
+            include/scheduler_internal.h
+	$(CC) $(CPPFLAGS) $(CFLAGS) -o $@ src/experiment.c src/scenarios.c \
+		src/workload.c $(COMMON) $(LDLIBS)
 
 test_schedulers: tests/test_schedulers.c $(COMMON) include/simulator.h include/scheduler_internal.h
 	$(CC) $(CPPFLAGS) $(CFLAGS) -o $@ tests/test_schedulers.c $(COMMON)
@@ -26,5 +32,6 @@ test: test_schedulers test_workload test_scenarios
 	./test_scenarios
 
 clean:
-	$(RM) simulator test_schedulers test_workload test_scenarios \
-	      simulator.exe test_schedulers.exe test_workload.exe test_scenarios.exe
+	$(RM) simulator experiment test_schedulers test_workload test_scenarios \
+	      simulator.exe experiment.exe test_schedulers.exe test_workload.exe \
+	      test_scenarios.exe
