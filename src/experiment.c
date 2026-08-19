@@ -65,7 +65,7 @@ static int parse_positive_int(const char *text, const char *name) {
     errno = 0;
     value = strtol(text, &end, 10);
     if (errno != 0 || !end || *end != '\0' || value <= 0 || value > INT_MAX) {
-        fprintf(stderr, "Valor inválido para %s: %s\n", name, text);
+        fprintf(stderr, "Valor invalido para %s: %s\n", name, text);
         return -1;
     }
     return (int)value;
@@ -138,7 +138,7 @@ int main(int argc, char **argv) {
 
     if (ensure_parent_directories(process_path) != 0 ||
         ensure_parent_directories(run_path) != 0) {
-        perror("Falha ao criar diretório de saída");
+        perror("Falha ao criar diretorio de saida");
         goto cleanup;
     }
 
@@ -172,7 +172,7 @@ int main(int argc, char **argv) {
 
             /* Uma única carga é compartilhada pelos quatro algoritmos. */
             if (workload_generate(seed, &params, &workload) != 0) {
-                fprintf(stderr, "Falha ao gerar cenário %s, seed %llu.\n",
+                fprintf(stderr, "Falha ao gerar cenario %s, seed %llu.\n",
                         scenario_name, seed);
                 goto cleanup;
             }
@@ -192,7 +192,7 @@ int main(int argc, char **argv) {
                 if (simulator_run(workload.processes, workload.process_count,
                                   &config, &result) != 0) {
                     fprintf(stderr,
-                            "Falha na simulação: cenário=%s seed=%llu algoritmo=%s.\n",
+                            "Falha na simulacao: cenario=%s seed=%llu algoritmo=%s.\n",
                             scenario_name, seed, algorithm->csv_name);
                     workload_destroy(&workload);
                     goto cleanup;
@@ -214,7 +214,7 @@ int main(int argc, char **argv) {
             }
             workload_destroy(&workload);
 
-            fprintf(stderr, "Concluído: cenário=%s seed=%d/%d\r",
+            fprintf(stderr, "Concluido: cenario=%s seed=%d/%d\r",
                     scenario_name, seed_number, seed_count);
         }
         fputc('\n', stderr);

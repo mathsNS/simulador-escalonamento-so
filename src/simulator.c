@@ -268,7 +268,7 @@ const char *scheduler_algorithm_name(SchedulerAlgorithm algorithm) {
     switch (algorithm) {
     case SCHED_FCFS: return "FCFS";
     case SCHED_ROUND_ROBIN: return "Round Robin";
-    case SCHED_PRIORITY: return "Prioridade não preemptiva";
+    case SCHED_PRIORITY: return "Prioridade nao preemptiva";
     case SCHED_EPA: return "EPA (Escalonador Preditivo Adaptativo)";
     default: return "Desconhecido";
     }

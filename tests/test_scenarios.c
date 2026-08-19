@@ -82,13 +82,13 @@ static void test_unbalanced_priority_favors_high_priority(void) {
 }
 
 int main(void) {
-    puts("Cenários: todos geram cargas válidas"); fflush(stdout);
+    puts("Cenarios: todos geram cargas validas"); fflush(stdout);
     test_all_scenarios_generate_valid_workloads();
-    puts("Cenários: mesma seed reproduz o mesmo cenário"); fflush(stdout);
+    puts("Cenarios: mesma seed reproduz o mesmo cenario"); fflush(stdout);
     test_same_seed_same_scenario_is_reproducible();
-    puts("Cenários: I/O-bound tem mais E/S e menos CPU que CPU-bound"); fflush(stdout);
+    puts("Cenarios: I/O-bound tem mais E/S e menos CPU que CPU-bound"); fflush(stdout);
     test_io_bound_has_more_io_than_cpu_bound();
-    puts("Cenários: prioridades desbalanceadas favorece alta prioridade"); fflush(stdout);
+    puts("Cenarios: prioridades desbalanceadas favorece alta prioridade"); fflush(stdout);
     test_unbalanced_priority_favors_high_priority();
     puts("Todos os testes passaram.");
     return 0;

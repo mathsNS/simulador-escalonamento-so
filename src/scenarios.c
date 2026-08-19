@@ -2,7 +2,7 @@
 
 const char *scenario_name(ScenarioKind kind) {
     switch (kind) {
-    case SCENARIO_BALANCED: return "Aleatório equilibrado";
+    case SCENARIO_BALANCED: return "Aleatorio equilibrado";
     case SCENARIO_IO_BOUND: return "I/O-bound";
     case SCENARIO_CPU_BOUND: return "CPU-bound / processos longos";
     case SCENARIO_UNBALANCED_PRIORITY: return "Prioridades desbalanceadas";
