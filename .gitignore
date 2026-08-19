@@ -1,0 +1,6 @@
+simulator
+simulator.exe
+test_schedulers
+test_schedulers.exe
+*.o
+documentacao_simulador
