@@ -8,3 +8,5 @@ test_workload
 test_workload.exe
 *.o
 documentacao_simulador
+__pycache__/
+*.py[cod]
