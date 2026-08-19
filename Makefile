@@ -17,9 +17,14 @@ test_schedulers: tests/test_schedulers.c $(COMMON) include/simulator.h include/s
 test_workload: tests/test_workload.c src/workload.c $(COMMON) include/workload.h include/simulator.h include/scheduler_internal.h
 	$(CC) $(CPPFLAGS) $(CFLAGS) -o $@ tests/test_workload.c src/workload.c $(COMMON) $(LDLIBS)
 
-test: test_schedulers test_workload
+test_scenarios: tests/test_scenarios.c src/scenarios.c src/workload.c include/scenarios.h include/workload.h include/simulator.h
+	$(CC) $(CPPFLAGS) $(CFLAGS) -o $@ tests/test_scenarios.c src/scenarios.c src/workload.c $(LDLIBS)
+
+test: test_schedulers test_workload test_scenarios
 	./test_schedulers
 	./test_workload
+	./test_scenarios
 
 clean:
-	$(RM) simulator test_schedulers test_workload simulator.exe test_schedulers.exe test_workload.exe
+	$(RM) simulator test_schedulers test_workload test_scenarios \
+	      simulator.exe test_schedulers.exe test_workload.exe test_scenarios.exe

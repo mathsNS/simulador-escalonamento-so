@@ -81,7 +81,7 @@ int main(void) {
     test_fcfs_arrivals_and_idle();
     puts("Round Robin: quantum"); fflush(stdout);
     test_round_robin_quantum_and_short_burst();
-    puts("Prioridade: nao preemptivo e empate"); fflush(stdout);
+    puts("Prioridade: não preemptivo e empate"); fflush(stdout);
     test_priority_non_preemptive_and_tie();
     puts("FCFS: retorno de E/S"); fflush(stdout);
     test_io_return();
@@ -89,7 +89,7 @@ int main(void) {
     test_round_robin_io_before_quantum();
     puts("Troca de contexto"); fflush(stdout);
     test_context_switch_cost();
-    puts("Validacao de quantum"); fflush(stdout);
+    puts("Validação de quantum"); fflush(stdout);
     test_invalid_quantum();
     puts("Todos os testes passaram.");
     return 0;
